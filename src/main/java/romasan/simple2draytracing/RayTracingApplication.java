@@ -1,0 +1,140 @@
+package romasan.simple2draytracing;
+
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import romasan.simple2draytracing.Engine.Circle;
+import romasan.simple2draytracing.Engine.Engine;
+import romasan.simple2draytracing.Engine.Line;
+import romasan.simple2draytracing.Engine.Point;
+
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+
+public class RayTracingApplication extends Application {
+    private static final int WIDTH = 1920, HEIGHT = 1080;
+    private static Circle current = null;
+    private static byte speed = 2;
+
+    @Override
+    public void start(final Stage stage) {
+        final Canvas canvas = new Canvas(WIDTH, HEIGHT);
+        final GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        final Pane root = new Pane(canvas);
+        final Scene scene = new Scene(root, WIDTH, HEIGHT);
+        stage.setTitle("Ray Tracing");
+        stage.setResizable(false);
+        stage.initStyle(StageStyle.UNDECORATED);
+        stage.setFullScreen(true);
+
+        final Engine engine = new Engine(List.of(new Circle(new Point(935.0, 515.0), 50.0, true, Color.YELLOW, 0.014),
+                new Circle(new Point(1450.0, 115.0), 50.0, true, Color.CYAN, 0.016),
+                new Circle(new Point(315.0, 880.0), 50.0, true, Color.MAGENTA, 0.012),
+                new Circle(new Point(200.0, 200.0), 75.0, false, Color.RED, 0.0),
+                new Circle(new Point(1000.0, 300.0), 100.0, false, Color.RED, 0.0),
+                new Circle(new Point(1800.0, 250.0), 60.0, false, Color.RED, 0.0),
+                new Circle(new Point(150.0, 850.0), 50.0, false, Color.RED, 0.0),
+                new Circle(new Point(450.0, 750.0), 35.0, false, Color.RED, 0.0),
+                new Circle(new Point(1120.0, 820.0), 40.0, false, Color.RED, 0.0),
+                new Circle(new Point(1400.0, 700.0), 45.0, false, Color.RED, 0.0),
+                new Circle(new Point(500.0, 1000.0), 20.0, false, Color.RED, 0.0)));
+
+        final List<Circle> objects = engine.getObjects();
+        engine.algorithm();
+        final Map<Circle, List<Line>> lightSources = engine.getLightSources();
+
+        drawScene(gc, lightSources, objects);
+
+        scene.setOnMouseClicked(event -> {
+            final Point clicked = new Point(event.getX(), HEIGHT - event.getY());
+            boolean selected = false;
+
+            for (final Circle lightSource : lightSources.keySet()) {
+                if (lightSource.contains(clicked)) {
+                    current = lightSource;
+                    selected = true;
+                    break;
+                }
+            }
+
+            if (!selected) {
+                for (final Circle object : objects) {
+                    if (object.contains(clicked)) {
+                        current = object;
+                        break;
+                    }
+                }
+            }
+        });
+
+        scene.setOnKeyPressed(event -> {
+            switch (event.getCode()) {
+                case KeyCode.F11 -> stage.setFullScreen(!stage.isFullScreen());
+                case KeyCode.OPEN_BRACKET -> speed = (byte) Math.max(speed - 2, 2);
+                case KeyCode.CLOSE_BRACKET -> speed = (byte) Math.min(speed + 2, 16);
+                default -> {
+                    if (current != null) {
+                        boolean reDrawScene = true;
+                        switch (event.getCode()) {
+                            case KeyCode.W -> current.move(new Point(0.0, speed));
+                            case KeyCode.A -> current.move(new Point(-speed, 0.0));
+                            case KeyCode.S -> current.move(new Point(0.0, -speed));
+                            case KeyCode.D -> current.move(new Point(speed, 0.0));
+                            default -> reDrawScene = false;
+                        }
+
+                        if (reDrawScene) {
+                            engine.algorithm();
+                            drawScene(gc, engine.getLightSources(), objects);
+                        }
+                    }
+                }
+            }
+        });
+
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    private static void drawScene(final GraphicsContext gc, final Map<Circle, List<Line>> lightSources, final List<Circle> objects) {
+        gc.setFill(Color.BLACK);
+        gc.fillRect(0, 0, WIDTH, HEIGHT);
+
+        final Consumer<Circle> drawObject = (final Circle object) -> {
+            final Color objectColor = object.getColor();
+            gc.setStroke(objectColor);
+            gc.setFill(objectColor);
+            gc.strokeOval(object.getCenter().getX() - object.getRadius(), HEIGHT - object.getCenter().getY() - object.getRadius(), object.getRadius() * 2, object.getRadius() * 2);
+            gc.fillOval(object.getCenter().getX() - object.getRadius(), HEIGHT - object.getCenter().getY() - object.getRadius(), object.getRadius() * 2, object.getRadius() * 2);
+        };
+
+        for (final Circle object : objects) {
+            drawObject.accept(object);
+        }
+
+        for (final var lightSource : lightSources.entrySet()) {
+            final Circle object = lightSource.getKey();
+            final Color objectColor = object.getColor();
+            final Color lightRaysColor = Color.color(objectColor.getRed(), objectColor.getGreen(), objectColor.getBlue(), object.getLightOpacity());
+
+            gc.setStroke(lightRaysColor);
+            for (final Line lightRay : lightSource.getValue()) {
+                gc.strokeLine(lightRay.getStart().getX(), HEIGHT - lightRay.getStart().getY(), lightRay.getEnd().getX(), HEIGHT - lightRay.getEnd().getY());
+            }
+
+            drawObject.accept(object);
+        }
+    }
+
+    public static void main() {
+        launch();
+    }
+}
