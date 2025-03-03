@@ -39,11 +39,13 @@ public class RayTracingApplication extends Application {
         final Engine engine = new Engine(
                 List.of(
                         // Yellow light source
-                        new LightSourceCircle(new Point(935.0, 515.0), 50.0, Color.YELLOW, 1.0, Color.WHEAT, 0.014),
+                        new LightSourceCircle(new Point(935.0, 515.0), 10.0, Color.YELLOW, 1.0, Color.WHEAT, 0.014),
                         // Cyan light source
-                        new LightSourceCircle(new Point(1450.0, 115.0), 50.0, Color.CYAN, 1.0, Color.CYAN, 0.016),
+                        new LightSourceCircle(new Point(1450.0, 115.0), 25.0, Color.CYAN, 1.0, Color.CYAN, 0.016),
                         // Magenta light source
                         new LightSourceCircle(new Point(315.0, 880.0), 50.0, Color.MAGENTA, 1.0, Color.MAGENTA, 0.012),
+                        // White light source
+                        new LightSourceCircle(new Point(1140.0, 300.0), 50.0, Color.WHITE, 0.0, Color.WHITE, 0.01),
                         // 8 different-sized different-colored circles
                         new DefaultCircle(new Point(200.0, 200.0), 75.0, Color.RED, 1.0),
                         new DefaultCircle(new Point(1000.0, 300.0), 100.0, Color.GREEN, 1.0),
@@ -130,10 +132,12 @@ public class RayTracingApplication extends Application {
             gc.fillOval(objectCenterX - objectRadius, HEIGHT - objectCenterY - objectRadius, objectRadius * 2, objectRadius * 2);
         };
 
+        // draw default objects first
         for (final DefaultCircle defaultObject : defaultObjects) {
             drawObject.accept(defaultObject);
         }
 
+        // draw light rays second
         for (final var lightSourceWihLightRays : lightSources.entrySet()) {
             final LightSourceCircle lightSource = lightSourceWihLightRays.getKey();
             final Color lightColor = lightSource.getLightColor(),
@@ -143,7 +147,10 @@ public class RayTracingApplication extends Application {
             for (final Line lightRay : lightSourceWihLightRays.getValue()) {
                 gc.strokeLine(lightRay.getStart().getX(), HEIGHT - lightRay.getStart().getY(), lightRay.getEnd().getX(), HEIGHT - lightRay.getEnd().getY());
             }
+        }
 
+        // draw light sources last
+        for (final LightSourceCircle lightSource : lightSources.keySet()) {
             drawObject.accept(lightSource);
         }
     }
