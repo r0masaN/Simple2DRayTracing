@@ -21,7 +21,7 @@ import java.util.function.Consumer;
 public class RayTracingApplication extends Application {
     private static final int WIDTH = 1920, HEIGHT = 1080;
     private static AbstractCircle current = null;
-    private static byte speed = 2;
+    private static byte moveSpeed = 2, lightDistanceDelta = 2;
 
     @Override
     public void start(final Stage stage) {
@@ -39,13 +39,13 @@ public class RayTracingApplication extends Application {
         final Engine engine = new Engine(
                 List.of(
                         // Yellow light source
-                        new LightSourceCircle(new Point(935.0, 515.0), 10.0, Color.YELLOW, 1.0, Color.WHEAT, 0.014),
+                        new LightSourceCircle(new Point(935.0, 515.0), 10.0, Color.YELLOW, 1.0, Color.WHEAT, 0.014, 2000.0),
                         // Cyan light source
-                        new LightSourceCircle(new Point(1450.0, 115.0), 25.0, Color.CYAN, 1.0, Color.CYAN, 0.016),
+                        new LightSourceCircle(new Point(1450.0, 115.0), 25.0, Color.CYAN, 1.0, Color.CYAN, 0.016, 2000.0),
                         // Magenta light source
-                        new LightSourceCircle(new Point(315.0, 880.0), 50.0, Color.MAGENTA, 1.0, Color.MAGENTA, 0.012),
+                        new LightSourceCircle(new Point(315.0, 880.0), 50.0, Color.MAGENTA, 1.0, Color.MAGENTA, 0.012, 2000.0),
                         // White light source
-                        new LightSourceCircle(new Point(1140.0, 300.0), 50.0, Color.WHITE, 0.0, Color.WHITE, 0.01),
+                        new LightSourceCircle(new Point(1140.0, 300.0), 50.0, Color.WHITE, 0.0, Color.WHITE, 0.01, 2000.0),
                         // 8 different-sized different-colored circles
                         new DefaultCircle(new Point(200.0, 200.0), 75.0, Color.RED, 1.0),
                         new DefaultCircle(new Point(1000.0, 300.0), 100.0, Color.GREEN, 1.0),
@@ -89,16 +89,50 @@ public class RayTracingApplication extends Application {
         scene.setOnKeyPressed(event -> {
             switch (event.getCode()) {
                 case KeyCode.F11 -> stage.setFullScreen(!stage.isFullScreen()); // fullscreen mode
-                case KeyCode.DOWN -> speed = (byte) Math.max(speed - 2, 2); // decrease speed (2..16 \w step 2)
-                case KeyCode.UP -> speed = (byte) Math.min(speed + 2, 16); // increase speed (2..16 \w step 2)
+                case KeyCode.DOWN -> moveSpeed = (byte) Math.max(moveSpeed - 2, 2); // decrease speed (2..16 \w step 2)
+                case KeyCode.UP -> moveSpeed = (byte) Math.min(moveSpeed + 2, 16); // increase speed (2..16 \w step 2)
+                case KeyCode.LEFT -> lightDistanceDelta = (byte) Math.max(lightDistanceDelta - 2, 2); // decrease light speed delta (2..16 \w step 2)
+                case KeyCode.RIGHT -> lightDistanceDelta = (byte) Math.min(lightDistanceDelta + 2, 16); // increase light speed delta (2..16 \w step 2)
+
                 default -> {
                     if (current != null) {
                         boolean reDrawScene = true;
                         switch (event.getCode()) {
-                            case KeyCode.W -> current.move(new Point(0.0, speed)); // move up
-                            case KeyCode.A -> current.move(new Point(-speed, 0.0)); // move left
-                            case KeyCode.S -> current.move(new Point(0.0, -speed)); // move down
-                            case KeyCode.D -> current.move(new Point(speed, 0.0)); // move right
+                            case KeyCode.W -> current.move(new Point(0.0, moveSpeed)); // move up
+                            case KeyCode.A -> current.move(new Point(-moveSpeed, 0.0)); // move left
+                            case KeyCode.S -> current.move(new Point(0.0, -moveSpeed)); // move down
+                            case KeyCode.D -> current.move(new Point(moveSpeed, 0.0)); // move right
+                            case KeyCode.DIGIT1 -> current.subtractRadius(1.0); // decrease object radius
+                            case KeyCode.DIGIT2 -> current.addRadius(1.0); // increase object radius
+                            case KeyCode.DIGIT3 -> current.subtractOpacity(0.02); // decrease object opacity
+                            case KeyCode.DIGIT4 -> current.addOpacity(0.02); // increase object opacity
+
+                            case KeyCode.DIGIT5 -> { // decrease light distance
+                                if (current instanceof LightSourceCircle lightSource) {
+                                    lightSource.subtractLightDistance(lightDistanceDelta);
+                                }
+                            }
+                            case KeyCode.DIGIT6 -> { // increase light distance
+                                if (current instanceof LightSourceCircle lightSource) {
+                                    lightSource.addLightDistance(lightDistanceDelta);
+                                }
+                            }
+                            case KeyCode.OPEN_BRACKET -> { // decrease light brightness
+                                if (current instanceof LightSourceCircle lightSource) {
+                                    lightSource.subtractLightOpacity(0.002);
+                                }
+                            }
+                            case KeyCode.CLOSE_BRACKET -> { // increase light brightness
+                                if (current instanceof LightSourceCircle lightSource) {
+                                    lightSource.addLightOpacity(0.002);
+                                }
+                            }
+                            case KeyCode.ENTER -> { // toggle light source
+                                if (current instanceof LightSourceCircle lightSource) {
+                                    lightSource.toggleActive();
+                                }
+                            }
+
                             default -> reDrawScene = false;
                         }
 
@@ -140,12 +174,15 @@ public class RayTracingApplication extends Application {
         // draw light rays second
         for (final var lightSourceWihLightRays : lightSources.entrySet()) {
             final LightSourceCircle lightSource = lightSourceWihLightRays.getKey();
-            final Color lightColor = lightSource.getLightColor(),
-                    lightColorWithOpacity = Color.color(lightColor.getRed(), lightColor.getGreen(), lightColor.getBlue(), lightSource.getLightOpacity());
-            gc.setStroke(lightColorWithOpacity);
 
-            for (final Line lightRay : lightSourceWihLightRays.getValue()) {
-                gc.strokeLine(lightRay.getStart().getX(), HEIGHT - lightRay.getStart().getY(), lightRay.getEnd().getX(), HEIGHT - lightRay.getEnd().getY());
+            if (lightSource.isActive()) {
+                final Color lightColor = lightSource.getLightColor(),
+                        lightColorWithOpacity = Color.color(lightColor.getRed(), lightColor.getGreen(), lightColor.getBlue(), lightSource.getLightOpacity());
+                gc.setStroke(lightColorWithOpacity);
+
+                for (final Line lightRay : lightSourceWihLightRays.getValue()) {
+                    gc.strokeLine(lightRay.getStart().getX(), HEIGHT - lightRay.getStart().getY(), lightRay.getEnd().getX(), HEIGHT - lightRay.getEnd().getY());
+                }
             }
         }
 
