@@ -1,6 +1,6 @@
 # Simple 2D Ray Tracing
 
-![Project Screenshot](assets/screenshot.png)  
+![Project Screenshot](assets/screenshot.jpg)  
 *A simple JavaFX application demonstrating real-time 2D ray tracing.*
 
 ## Overview
