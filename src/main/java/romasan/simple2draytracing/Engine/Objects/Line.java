@@ -1,4 +1,4 @@
-package romasan.simple2draytracing.Engine;
+package romasan.simple2draytracing.Engine.Objects;
 
 // simple Line class
 public final class Line {
@@ -27,7 +27,7 @@ public final class Line {
         }
     }
 
-    public Point intersectionPoint(final Circle circle) {
+    public Point intersectionPoint(final AbstractCircle circle) {
         final double cx = circle.getCenter().getX(), cy = circle.getCenter().getY(), r = circle.getRadius();
 
         if (Math.abs(this.start.getX() - this.end.getX()) < 10e-6) {

@@ -10,20 +10,17 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import romasan.simple2draytracing.Engine.Circle;
 import romasan.simple2draytracing.Engine.Engine;
-import romasan.simple2draytracing.Engine.Line;
-import romasan.simple2draytracing.Engine.Point;
+import romasan.simple2draytracing.Engine.Objects.*;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 public class RayTracingApplication extends Application {
     private static final int WIDTH = 1920, HEIGHT = 1080;
-    private static Circle current = null;
+    private static AbstractCircle current = null;
     private static byte speed = 2;
 
     @Override
@@ -42,34 +39,34 @@ public class RayTracingApplication extends Application {
         final Engine engine = new Engine(
                 List.of(
                         // Yellow light source
-                        new Circle(new Point(935.0, 515.0), 50.0, true, Color.YELLOW, 0.014),
+                        new LightSourceCircle(new Point(935.0, 515.0), 50.0, Color.YELLOW, 1.0, Color.YELLOW, 0.014),
                         // Cyan light source
-                        new Circle(new Point(1450.0, 115.0), 50.0, true, Color.CYAN, 0.016),
+                        new LightSourceCircle(new Point(1450.0, 115.0), 50.0, Color.CYAN, 1.0, Color.CYAN, 0.016),
                         // Magenta light source
-                        new Circle(new Point(315.0, 880.0), 50.0, true, Color.MAGENTA, 0.012),
+                        new LightSourceCircle(new Point(315.0, 880.0), 50.0, Color.MAGENTA, 1.0, Color.MAGENTA, 0.012),
                         // 8 different-sized different-colored circles
-                        new Circle(new Point(200.0, 200.0), 75.0, false, Color.RED, 0.0),
-                        new Circle(new Point(1000.0, 300.0), 100.0, false, Color.GREEN, 0.0),
-                        new Circle(new Point(1800.0, 250.0), 60.0, false, Color.BLUE, 0.0),
-                        new Circle(new Point(150.0, 850.0), 50.0, false, Color.ORANGE, 0.0),
-                        new Circle(new Point(450.0, 750.0), 35.0, false, Color.PURPLE, 0.0),
-                        new Circle(new Point(1120.0, 820.0), 40.0, false, Color.PINK, 0.0),
-                        new Circle(new Point(1400.0, 700.0), 45.0, false, Color.DARKBLUE, 0.0),
-                        new Circle(new Point(500.0, 1000.0), 20.0, false, Color.SEAGREEN, 0.0)
+                        new DefaultCircle(new Point(200.0, 200.0), 75.0, Color.RED, 1.0),
+                        new DefaultCircle(new Point(1000.0, 300.0), 100.0, Color.GREEN, 1.0),
+                        new DefaultCircle(new Point(1800.0, 250.0), 60.0, Color.BLUE, 1.0),
+                        new DefaultCircle(new Point(150.0, 850.0), 50.0, Color.ORANGE, 1.0),
+                        new DefaultCircle(new Point(450.0, 750.0), 35.0, Color.PURPLE, 1.0),
+                        new DefaultCircle(new Point(1120.0, 820.0), 40.0, Color.PINK, 1.0),
+                        new DefaultCircle(new Point(1400.0, 700.0), 45.0, Color.DARKBLUE, 1.0),
+                        new DefaultCircle(new Point(500.0, 1000.0), 20.0, Color.SEAGREEN, 1.0)
                 )
         );
 
-        final List<Circle> objects = engine.getObjects();
+        final List<DefaultCircle> defaultObjects = engine.getDefaultObjects();
         engine.algorithm();
-        final Map<Circle, List<Line>> lightSources = engine.getLightSources();
+        final Map<LightSourceCircle, List<Line>> lightSources = engine.getLightSources();
 
-        drawScene(gc, lightSources, objects);
+        drawScene(gc, lightSources, defaultObjects);
 
         scene.setOnMouseClicked(event -> {
             final Point clicked = new Point(event.getX(), HEIGHT - event.getY());
             boolean selected = false;
 
-            for (final Circle lightSource : lightSources.keySet()) {
+            for (final LightSourceCircle lightSource : lightSources.keySet()) {
                 if (lightSource.contains(clicked)) {
                     current = lightSource;
                     selected = true;
@@ -78,7 +75,7 @@ public class RayTracingApplication extends Application {
             }
 
             if (!selected) {
-                for (final Circle object : objects) {
+                for (final DefaultCircle object : defaultObjects) {
                     if (object.contains(clicked)) {
                         current = object;
                         break;
@@ -105,7 +102,7 @@ public class RayTracingApplication extends Application {
 
                         if (reDrawScene) {
                             engine.algorithm();
-                            drawScene(gc, engine.getLightSources(), objects);
+                            drawScene(gc, engine.getLightSources(), defaultObjects);
                         }
                     }
                 }
@@ -117,12 +114,12 @@ public class RayTracingApplication extends Application {
     }
 
     // drawing all objects, light sources & light rays
-    private static void drawScene(final GraphicsContext gc, final Map<Circle, List<Line>> lightSources, final List<Circle> objects) {
+    private static void drawScene(final GraphicsContext gc, final Map<LightSourceCircle, List<Line>> lightSources, final List<DefaultCircle> defaultObjects) {
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, WIDTH, HEIGHT);
 
         // lambda for drawing an object (circle)
-        final Consumer<Circle> drawObject = (final Circle object) -> {
+        final Consumer<AbstractCircle> drawObject = (final AbstractCircle object) -> {
             final Color objectColor = object.getColor();
             gc.setStroke(objectColor);
             gc.setFill(objectColor);
@@ -130,21 +127,21 @@ public class RayTracingApplication extends Application {
             gc.fillOval(object.getCenter().getX() - object.getRadius(), HEIGHT - object.getCenter().getY() - object.getRadius(), object.getRadius() * 2, object.getRadius() * 2);
         };
 
-        for (final Circle object : objects) {
-            drawObject.accept(object);
+        for (final DefaultCircle defaultObject : defaultObjects) {
+            drawObject.accept(defaultObject);
         }
 
-        for (final var lightSource : lightSources.entrySet()) {
-            final Circle object = lightSource.getKey();
-            final Color objectColor = object.getColor();
-            final Color lightRaysColor = Color.color(objectColor.getRed(), objectColor.getGreen(), objectColor.getBlue(), object.getLightOpacity());
+        for (final var lightSourceWihLightRays : lightSources.entrySet()) {
+            final LightSourceCircle lightSource = lightSourceWihLightRays.getKey();
+            final Color objectColor = lightSource.getColor();
+            final Color lightRaysColor = Color.color(objectColor.getRed(), objectColor.getGreen(), objectColor.getBlue(), lightSource.getLightOpacity());
 
             gc.setStroke(lightRaysColor);
-            for (final Line lightRay : lightSource.getValue()) {
+            for (final Line lightRay : lightSourceWihLightRays.getValue()) {
                 gc.strokeLine(lightRay.getStart().getX(), HEIGHT - lightRay.getStart().getY(), lightRay.getEnd().getX(), HEIGHT - lightRay.getEnd().getY());
             }
 
-            drawObject.accept(object);
+            drawObject.accept(lightSource);
         }
     }
 

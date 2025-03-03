@@ -1,7 +1,6 @@
 package romasan.simple2draytracing.Engine.Objects;
 
 import javafx.scene.paint.Color;
-import romasan.simple2draytracing.Engine.Point;
 
 public sealed class AbstractCircle permits DefaultCircle, LightSourceCircle {
     private Point center;

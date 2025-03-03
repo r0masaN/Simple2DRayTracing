@@ -1,4 +1,4 @@
-package romasan.simple2draytracing.Engine;
+package romasan.simple2draytracing.Engine.Objects;
 
 // simple Point class
 public final class Point {
