@@ -16,13 +16,13 @@ This is a lightweight 2D ray tracing simulation built with JavaFX. The applicati
 | Key | Action |
 |-----|--------|
 | F11 | Toggle full-screen mode |
-| ↑ | Decrease object movement speed (by factor of 2) |
-| ↓ | Increase object movement speed (by factor of 2) |
+| ↑ | Decrease object movement speed (from 2 to 16 pixels/step by factor of 2) |
+| ↓ | Increase object movement speed (from 2 to 16 pixels/step by factor of 2) |
 | W/A/S/D | Move controlled object |
 | Left Mouse Click | Select an object to control |
 
 ## How to Run
-1. Download the latest release: [Releases](https://github.com/r0masaN/Simple2DRayTracing/releases)
+1. Download the latest release: [Releases](https://github.com/r0masaN/Simple2DRayTracing/releases/tag/v0.1.0)
 2. Extract the archive and run the executable file:
    ```sh
    2DRayTracingDemo.exe
