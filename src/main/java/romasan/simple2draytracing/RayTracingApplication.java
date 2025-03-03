@@ -121,12 +121,12 @@ public class RayTracingApplication extends Application {
                             }
                             case KeyCode.Q -> { // decrease light brightness
                                 if (current instanceof LightSourceCircle lightSource) {
-                                    lightSource.subtractLightOpacity(0.001);
+                                    lightSource.subtractLightOpacity(0.002);
                                 }
                             }
                             case KeyCode.E -> { // increase light brightness
                                 if (current instanceof LightSourceCircle lightSource) {
-                                    lightSource.addLightOpacity(0.001);
+                                    lightSource.addLightOpacity(0.002);
                                 }
                             }
                             case KeyCode.F -> { // toggle light source

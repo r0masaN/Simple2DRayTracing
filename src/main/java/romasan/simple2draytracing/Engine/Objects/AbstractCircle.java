@@ -24,25 +24,23 @@ public sealed class AbstractCircle permits DefaultCircle, LightSourceCircle {
     }
 
     public void addRadius(final double deltaRadius) {
-        if (deltaRadius > 0.0) this.radius += deltaRadius;
+        if (deltaRadius > 0.0 && this.radius + deltaRadius <= 1000.0)
+            this.radius = Math.min(this.radius + deltaRadius, 1000.0);
     }
 
     public void subtractRadius(final double deltaRadius) {
-        if (deltaRadius > 0.0 && this.radius - deltaRadius >= 0) this.radius = Math.max(this.radius - deltaRadius, 0.0);
+        if (deltaRadius > 0.0 && this.radius - deltaRadius >= 0.0)
+            this.radius = Math.max(this.radius - deltaRadius, 0.0);
     }
 
     public void addOpacity(final double deltaOpacity) {
-        if (deltaOpacity > 0.0 && deltaOpacity <= 1.0 && this.opacity < 1.0) {
-            final double newOpacity = this.opacity + deltaOpacity;
-            if (newOpacity <= 1.0) this.opacity = Math.min(newOpacity, 1.0);
-        }
+        if (deltaOpacity > 0.0 && deltaOpacity <= 1.0 && this.opacity + deltaOpacity <= 1.0)
+            this.opacity = Math.min(this.opacity + deltaOpacity, 1.0);
     }
 
     public void subtractOpacity(final double deltaOpacity) {
-        if (deltaOpacity > 0.0 && deltaOpacity <= 1.0 && this.opacity > 0.0) {
-            final double newOpacity = this.opacity - deltaOpacity;
-            if (newOpacity >= 0.0) this.opacity = Math.max(newOpacity, 0.0);
-        }
+        if (deltaOpacity > 0.0 && deltaOpacity <= 1.0 && this.opacity - deltaOpacity >= 0.0)
+            this.opacity = Math.max(this.opacity - deltaOpacity, 0.0);
     }
 
     public Point getCenter() {
