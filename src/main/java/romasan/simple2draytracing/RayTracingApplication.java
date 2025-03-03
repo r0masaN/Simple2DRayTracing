@@ -39,7 +39,7 @@ public class RayTracingApplication extends Application {
         final Engine engine = new Engine(
                 List.of(
                         // Yellow light source
-                        new LightSourceCircle(new Point(935.0, 515.0), 50.0, Color.YELLOW, 1.0, Color.YELLOW, 0.014),
+                        new LightSourceCircle(new Point(935.0, 515.0), 50.0, Color.YELLOW, 1.0, Color.WHEAT, 0.014),
                         // Cyan light source
                         new LightSourceCircle(new Point(1450.0, 115.0), 50.0, Color.CYAN, 1.0, Color.CYAN, 0.016),
                         // Magenta light source
@@ -120,11 +120,14 @@ public class RayTracingApplication extends Application {
 
         // lambda for drawing an object (circle)
         final Consumer<AbstractCircle> drawObject = (final AbstractCircle object) -> {
-            final Color objectColor = object.getColor();
-            gc.setStroke(objectColor);
-            gc.setFill(objectColor);
-            gc.strokeOval(object.getCenter().getX() - object.getRadius(), HEIGHT - object.getCenter().getY() - object.getRadius(), object.getRadius() * 2, object.getRadius() * 2);
-            gc.fillOval(object.getCenter().getX() - object.getRadius(), HEIGHT - object.getCenter().getY() - object.getRadius(), object.getRadius() * 2, object.getRadius() * 2);
+            final Color objectColor = object.getColor(),
+                    objectColorWithOpacity = Color.color(objectColor.getRed(), objectColor.getGreen(), objectColor.getBlue(), object.getOpacity());
+            gc.setStroke(objectColorWithOpacity);
+            gc.setFill(objectColorWithOpacity);
+
+            final double objectCenterX = object.getCenter().getX(), objectCenterY = object.getCenter().getY(), objectRadius = object.getRadius();
+            gc.strokeOval(objectCenterX - objectRadius, HEIGHT - objectCenterY - objectRadius, objectRadius * 2, objectRadius * 2);
+            gc.fillOval(objectCenterX - objectRadius, HEIGHT - objectCenterY - objectRadius, objectRadius * 2, objectRadius * 2);
         };
 
         for (final DefaultCircle defaultObject : defaultObjects) {
@@ -133,10 +136,10 @@ public class RayTracingApplication extends Application {
 
         for (final var lightSourceWihLightRays : lightSources.entrySet()) {
             final LightSourceCircle lightSource = lightSourceWihLightRays.getKey();
-            final Color objectColor = lightSource.getColor();
-            final Color lightRaysColor = Color.color(objectColor.getRed(), objectColor.getGreen(), objectColor.getBlue(), lightSource.getLightOpacity());
+            final Color lightColor = lightSource.getLightColor(),
+                    lightColorWithOpacity = Color.color(lightColor.getRed(), lightColor.getGreen(), lightColor.getBlue(), lightSource.getLightOpacity());
+            gc.setStroke(lightColorWithOpacity);
 
-            gc.setStroke(lightRaysColor);
             for (final Line lightRay : lightSourceWihLightRays.getValue()) {
                 gc.strokeLine(lightRay.getStart().getX(), HEIGHT - lightRay.getStart().getY(), lightRay.getEnd().getX(), HEIGHT - lightRay.getEnd().getY());
             }
