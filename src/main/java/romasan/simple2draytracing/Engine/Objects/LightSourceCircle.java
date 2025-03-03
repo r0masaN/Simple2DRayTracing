@@ -33,7 +33,7 @@ public final class LightSourceCircle extends AbstractCircle {
 
     public void addLightDistance(final double deltaLightDistance) {
         if (deltaLightDistance > 0.0) {
-            this.lightDistance = Math.min(this.lightDistance + deltaLightDistance, 2000.0);
+            this.lightDistance = Math.min(this.lightDistance + deltaLightDistance, 2500.0);
         }
     }
 

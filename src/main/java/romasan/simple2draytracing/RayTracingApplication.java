@@ -9,7 +9,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import romasan.simple2draytracing.Engine.Engine;
 import romasan.simple2draytracing.Engine.Objects.*;
 
@@ -33,19 +32,18 @@ public class RayTracingApplication extends Application {
         stage.setTitle("Ray Tracing");
         stage.getIcons().add(new Image(Path.of("assets/icon.jpg").toUri().toString()));
         stage.setResizable(false);
-        stage.initStyle(StageStyle.UNDECORATED);
         stage.setFullScreen(true);
 
         final Engine engine = new Engine(
                 List.of(
                         // Yellow light source
-                        new LightSourceCircle(new Point(935.0, 515.0), 10.0, Color.YELLOW, 1.0, Color.WHEAT, 0.014, 2000.0),
+                        new LightSourceCircle(new Point(935.0, 515.0), 20.0, Color.YELLOW, 1.0, Color.WHEAT, 0.025, 2200.0),
                         // Cyan light source
-                        new LightSourceCircle(new Point(1450.0, 115.0), 25.0, Color.CYAN, 1.0, Color.CYAN, 0.016, 2000.0),
+                        new LightSourceCircle(new Point(1450.0, 115.0), 30.0, Color.CYAN, 1.0, Color.CYAN, 0.025, 2200.0),
                         // Magenta light source
-                        new LightSourceCircle(new Point(315.0, 880.0), 50.0, Color.MAGENTA, 1.0, Color.MAGENTA, 0.012, 2000.0),
+                        new LightSourceCircle(new Point(315.0, 880.0), 40.0, Color.MAGENTA, 1.0, Color.MAGENTA, 0.02, 2200.0),
                         // White light source
-                        new LightSourceCircle(new Point(1140.0, 300.0), 50.0, Color.WHITE, 0.0, Color.WHITE, 0.01, 2000.0),
+                        new LightSourceCircle(new Point(1600.0, 600.0), 10.0, Color.WHITE, 0.0, Color.WHITE, 0.02, 2200.0),
                         // 8 different-sized different-colored circles
                         new DefaultCircle(new Point(200.0, 200.0), 75.0, Color.RED, 1.0),
                         new DefaultCircle(new Point(1000.0, 300.0), 100.0, Color.GREEN, 1.0),
@@ -86,9 +84,13 @@ public class RayTracingApplication extends Application {
             }
         });
 
+        //TODO худ с инфой о выбранном объекте, а также о текущей скорости, дельте дистанции лучей и пр.
+
         scene.setOnKeyPressed(event -> {
             switch (event.getCode()) {
                 case KeyCode.F11 -> stage.setFullScreen(!stage.isFullScreen()); // fullscreen mode
+                case KeyCode.ESCAPE -> stage.close(); // close
+
                 case KeyCode.DOWN -> moveSpeed = (byte) Math.max(moveSpeed - 2, 2); // decrease speed (2..16 \w step 2)
                 case KeyCode.UP -> moveSpeed = (byte) Math.min(moveSpeed + 2, 16); // increase speed (2..16 \w step 2)
                 case KeyCode.LEFT -> lightDistanceDelta = (byte) Math.max(lightDistanceDelta - 2, 2); // decrease light speed delta (2..16 \w step 2)
@@ -102,32 +104,32 @@ public class RayTracingApplication extends Application {
                             case KeyCode.A -> current.move(new Point(-moveSpeed, 0.0)); // move left
                             case KeyCode.S -> current.move(new Point(0.0, -moveSpeed)); // move down
                             case KeyCode.D -> current.move(new Point(moveSpeed, 0.0)); // move right
-                            case KeyCode.DIGIT1 -> current.subtractRadius(1.0); // decrease object radius
-                            case KeyCode.DIGIT2 -> current.addRadius(1.0); // increase object radius
-                            case KeyCode.DIGIT3 -> current.subtractOpacity(0.02); // decrease object opacity
-                            case KeyCode.DIGIT4 -> current.addOpacity(0.02); // increase object opacity
+                            case KeyCode.R -> current.subtractRadius(1.0); // decrease object radius
+                            case KeyCode.T -> current.addRadius(1.0); // increase object radius
+                            case KeyCode.O -> current.subtractOpacity(0.02); // decrease object opacity
+                            case KeyCode.P -> current.addOpacity(0.02); // increase object opacity
 
-                            case KeyCode.DIGIT5 -> { // decrease light distance
+                            case KeyCode.Z -> { // decrease light distance
                                 if (current instanceof LightSourceCircle lightSource) {
                                     lightSource.subtractLightDistance(lightDistanceDelta);
                                 }
                             }
-                            case KeyCode.DIGIT6 -> { // increase light distance
+                            case KeyCode.X -> { // increase light distance
                                 if (current instanceof LightSourceCircle lightSource) {
                                     lightSource.addLightDistance(lightDistanceDelta);
                                 }
                             }
-                            case KeyCode.OPEN_BRACKET -> { // decrease light brightness
+                            case KeyCode.Q -> { // decrease light brightness
                                 if (current instanceof LightSourceCircle lightSource) {
-                                    lightSource.subtractLightOpacity(0.002);
+                                    lightSource.subtractLightOpacity(0.001);
                                 }
                             }
-                            case KeyCode.CLOSE_BRACKET -> { // increase light brightness
+                            case KeyCode.E -> { // increase light brightness
                                 if (current instanceof LightSourceCircle lightSource) {
-                                    lightSource.addLightOpacity(0.002);
+                                    lightSource.addLightOpacity(0.001);
                                 }
                             }
-                            case KeyCode.ENTER -> { // toggle light source
+                            case KeyCode.F -> { // toggle light source
                                 if (current instanceof LightSourceCircle lightSource) {
                                     lightSource.toggleActive();
                                 }

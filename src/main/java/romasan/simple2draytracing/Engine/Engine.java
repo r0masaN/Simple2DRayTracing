@@ -12,7 +12,7 @@ public final class Engine {
     private final Map<LightSourceCircle, List<Line>> lightSources;
     private final List<DefaultCircle> defaultObjects;
 
-    private final static double DEGREES_STEP = 0.05;
+    private final static double DEGREES_STEP = 0.03;
 
     public Engine(final List<AbstractCircle> objects) {
         this.lightSources = new HashMap<>();
@@ -33,20 +33,23 @@ public final class Engine {
             final List<Line> lightRays = new ArrayList<>((int) Math.ceil(360 / DEGREES_STEP));
 
             // spawns (360 / step) light rays in all directions from each light source
-            for (double i = 0; i < 360; i += DEGREES_STEP) {
-                final Line lightRay = new Line(new Point(lightSource.getCenter()),
-                        new Point(lightSource.getCenter().getX() + lightSource.getLightDistance() * Math.cos(Math.toRadians(i)),
-                                lightSource.getCenter().getY() + lightSource.getLightDistance() * Math.sin(Math.toRadians(i))));
+            for (double i = 0.0; i < 360.0; i += DEGREES_STEP) {
+                final double degree = Math.round(i * 1000.0) / 1000.0;
+                if (degree < 360.0) {
+                    final Line lightRay = new Line(new Point(lightSource.getCenter()),
+                            new Point(lightSource.getCenter().getX() + lightSource.getLightDistance() * Math.cos(Math.toRadians(degree)),
+                                    lightSource.getCenter().getY() + lightSource.getLightDistance() * Math.sin(Math.toRadians(degree))));
 
-                for (final DefaultCircle defaultObject : this.defaultObjects) {
-                    final Point intersectionPoint;
-                    // cuts off light ray when intersects \w any object (except light sources)
-                    if ((intersectionPoint = lightRay.intersectionPoint(defaultObject)) != null) {
-                        lightRay.setEnd(intersectionPoint);
+                    for (final DefaultCircle defaultObject : this.defaultObjects) {
+                        final Point intersectionPoint;
+                        // cuts off light ray when intersects \w any object (except light sources)
+                        if ((intersectionPoint = lightRay.intersectionPoint(defaultObject)) != null) {
+                            lightRay.setEnd(intersectionPoint);
+                        }
                     }
-                }
 
-                lightRays.add(lightRay);
+                    lightRays.add(lightRay);
+                }
             }
 
             this.lightSources.put(lightSource, lightRays);
