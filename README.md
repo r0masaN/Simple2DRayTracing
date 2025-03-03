@@ -16,8 +16,8 @@ This is a lightweight 2D ray tracing simulation built with JavaFX. The applicati
 | Key | Action |
 |-----|--------|
 | F11 | Toggle full-screen mode |
-| [ | Decrease object movement speed (by factor of 2) |
-| ] | Increase object movement speed (by factor of 2) |
+| ↑ | Decrease object movement speed (by factor of 2) |
+| ↓ | Increase object movement speed (by factor of 2) |
 | W/A/S/D | Move controlled object |
 | Left Mouse Click | Select an object to control |
 
