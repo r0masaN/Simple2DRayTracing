@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -14,8 +15,10 @@ import romasan.simple2draytracing.Engine.Engine;
 import romasan.simple2draytracing.Engine.Line;
 import romasan.simple2draytracing.Engine.Point;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class RayTracingApplication extends Application {
@@ -31,6 +34,7 @@ public class RayTracingApplication extends Application {
         final Pane root = new Pane(canvas);
         final Scene scene = new Scene(root, WIDTH, HEIGHT);
         stage.setTitle("Ray Tracing");
+        stage.getIcons().add(new Image(Path.of("assets/icon.jpg").toUri().toString()));
         stage.setResizable(false);
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setFullScreen(true);
@@ -86,8 +90,8 @@ public class RayTracingApplication extends Application {
         scene.setOnKeyPressed(event -> {
             switch (event.getCode()) {
                 case KeyCode.F11 -> stage.setFullScreen(!stage.isFullScreen()); // fullscreen mode
-                case KeyCode.OPEN_BRACKET -> speed = (byte) Math.max(speed - 2, 2); // decrease speed (2..16 \w step 2)
-                case KeyCode.CLOSE_BRACKET -> speed = (byte) Math.min(speed + 2, 16); // increase speed (2..16 \w step 2)
+                case KeyCode.DOWN -> speed = (byte) Math.max(speed - 2, 2); // decrease speed (2..16 \w step 2)
+                case KeyCode.UP -> speed = (byte) Math.min(speed + 2, 16); // increase speed (2..16 \w step 2)
                 default -> {
                     if (current != null) {
                         boolean reDrawScene = true;
