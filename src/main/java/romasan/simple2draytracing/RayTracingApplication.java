@@ -35,17 +35,25 @@ public class RayTracingApplication extends Application {
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setFullScreen(true);
 
-        final Engine engine = new Engine(List.of(new Circle(new Point(935.0, 515.0), 50.0, true, Color.YELLOW, 0.014),
-                new Circle(new Point(1450.0, 115.0), 50.0, true, Color.CYAN, 0.016),
-                new Circle(new Point(315.0, 880.0), 50.0, true, Color.MAGENTA, 0.012),
-                new Circle(new Point(200.0, 200.0), 75.0, false, Color.RED, 0.0),
-                new Circle(new Point(1000.0, 300.0), 100.0, false, Color.RED, 0.0),
-                new Circle(new Point(1800.0, 250.0), 60.0, false, Color.RED, 0.0),
-                new Circle(new Point(150.0, 850.0), 50.0, false, Color.RED, 0.0),
-                new Circle(new Point(450.0, 750.0), 35.0, false, Color.RED, 0.0),
-                new Circle(new Point(1120.0, 820.0), 40.0, false, Color.RED, 0.0),
-                new Circle(new Point(1400.0, 700.0), 45.0, false, Color.RED, 0.0),
-                new Circle(new Point(500.0, 1000.0), 20.0, false, Color.RED, 0.0)));
+        final Engine engine = new Engine(
+                List.of(
+                        // Yellow light source
+                        new Circle(new Point(935.0, 515.0), 50.0, true, Color.YELLOW, 0.014),
+                        // Cyan light source
+                        new Circle(new Point(1450.0, 115.0), 50.0, true, Color.CYAN, 0.016),
+                        // Magenta light source
+                        new Circle(new Point(315.0, 880.0), 50.0, true, Color.MAGENTA, 0.012),
+                        // 8 different-sized different-colored circles
+                        new Circle(new Point(200.0, 200.0), 75.0, false, Color.RED, 0.0),
+                        new Circle(new Point(1000.0, 300.0), 100.0, false, Color.GREEN, 0.0),
+                        new Circle(new Point(1800.0, 250.0), 60.0, false, Color.BLUE, 0.0),
+                        new Circle(new Point(150.0, 850.0), 50.0, false, Color.ORANGE, 0.0),
+                        new Circle(new Point(450.0, 750.0), 35.0, false, Color.PURPLE, 0.0),
+                        new Circle(new Point(1120.0, 820.0), 40.0, false, Color.PINK, 0.0),
+                        new Circle(new Point(1400.0, 700.0), 45.0, false, Color.DARKBLUE, 0.0),
+                        new Circle(new Point(500.0, 1000.0), 20.0, false, Color.SEAGREEN, 0.0)
+                )
+        );
 
         final List<Circle> objects = engine.getObjects();
         engine.algorithm();
@@ -77,17 +85,18 @@ public class RayTracingApplication extends Application {
 
         scene.setOnKeyPressed(event -> {
             switch (event.getCode()) {
-                case KeyCode.F11 -> stage.setFullScreen(!stage.isFullScreen());
-                case KeyCode.OPEN_BRACKET -> speed = (byte) Math.max(speed - 2, 2);
-                case KeyCode.CLOSE_BRACKET -> speed = (byte) Math.min(speed + 2, 16);
+                case KeyCode.F11 -> stage.setFullScreen(!stage.isFullScreen()); // fullscreen mode
+                case KeyCode.OPEN_BRACKET -> speed = (byte) Math.max(speed - 2, 2); // decrease speed (2..16 \w step 2)
+                case KeyCode.CLOSE_BRACKET ->
+                        speed = (byte) Math.min(speed + 2, 16); // increase speed (2..16 \w step 2)
                 default -> {
                     if (current != null) {
                         boolean reDrawScene = true;
                         switch (event.getCode()) {
-                            case KeyCode.W -> current.move(new Point(0.0, speed));
-                            case KeyCode.A -> current.move(new Point(-speed, 0.0));
-                            case KeyCode.S -> current.move(new Point(0.0, -speed));
-                            case KeyCode.D -> current.move(new Point(speed, 0.0));
+                            case KeyCode.W -> current.move(new Point(0.0, speed)); // move up
+                            case KeyCode.A -> current.move(new Point(-speed, 0.0)); // move left
+                            case KeyCode.S -> current.move(new Point(0.0, -speed)); // move down
+                            case KeyCode.D -> current.move(new Point(speed, 0.0)); // move right
                             default -> reDrawScene = false;
                         }
 
@@ -104,10 +113,12 @@ public class RayTracingApplication extends Application {
         stage.show();
     }
 
+    // drawing all objects, light sources & light rays
     private static void drawScene(final GraphicsContext gc, final Map<Circle, List<Line>> lightSources, final List<Circle> objects) {
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, WIDTH, HEIGHT);
 
+        // lambda for drawing an object (circle)
         final Consumer<Circle> drawObject = (final Circle object) -> {
             final Color objectColor = object.getColor();
             gc.setStroke(objectColor);
@@ -134,7 +145,7 @@ public class RayTracingApplication extends Application {
         }
     }
 
-    public static void main() {
+    public static void main(final String[] args) {
         launch();
     }
 }

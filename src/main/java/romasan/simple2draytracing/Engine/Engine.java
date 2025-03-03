@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+// Engine class (ray tracing magic here)
 public final class Engine {
     private final Map<Circle, List<Line>> lightSources;
     private final List<Circle> objects;
@@ -19,17 +20,20 @@ public final class Engine {
         });
     }
 
+    // main method \w ray tracing algorithm
     public void algorithm() {
         final double step = 0.05, scale = 200.0;
 
         for (final Circle lightSource : lightSources.keySet()) {
             final List<Line> lightRays = new ArrayList<>((int) Math.ceil(360 / step));
 
+            // spawns (360 / step) light rays in all directions from each light source
             for (double i = 0; i < 360; i += step) {
                 final Line lightRay = new Line(new Point(lightSource.getCenter()), new Point((1 - scale) * lightSource.getCenter().getX() + scale * (lightSource.getCenter().getX() + lightSource.getRadius() * Math.cos(Math.toRadians(i))), (1 - scale) * lightSource.getCenter().getY() + scale * (lightSource.getCenter().getY() + lightSource.getRadius() * Math.sin(Math.toRadians(i)))));
 
                 for (final Circle object : this.objects) {
                     final Point intersectionPoint;
+                    // cuts off light ray when intersects \w any object (except light sources)
                     if ((intersectionPoint = lightRay.intersectionPoint(object)) != null) {
                         lightRay.setEnd(intersectionPoint);
                     }

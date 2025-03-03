@@ -2,6 +2,7 @@ package romasan.simple2draytracing.Engine;
 
 import javafx.scene.paint.Color;
 
+// Circle class (also for light sources)
 public final class Circle {
     private Point center;
     private double radius;

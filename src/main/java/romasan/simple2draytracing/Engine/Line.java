@@ -1,5 +1,6 @@
 package romasan.simple2draytracing.Engine;
 
+// simple Line class
 public final class Line {
     private Point start, end;
     private double k, b;

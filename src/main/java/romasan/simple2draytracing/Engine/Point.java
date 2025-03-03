@@ -1,5 +1,6 @@
 package romasan.simple2draytracing.Engine;
 
+// simple Point class
 public final class Point {
     private double x, y;
 
