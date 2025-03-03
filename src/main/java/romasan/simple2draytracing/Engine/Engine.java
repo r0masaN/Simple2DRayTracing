@@ -12,6 +12,8 @@ public final class Engine {
     private final Map<LightSourceCircle, List<Line>> lightSources;
     private final List<DefaultCircle> defaultObjects;
 
+    private final static double DEGREES_STEP = 0.05;
+
     public Engine(final List<AbstractCircle> objects) {
         this.lightSources = new HashMap<>();
         this.defaultObjects = new ArrayList<>();
@@ -27,14 +29,14 @@ public final class Engine {
 
     // main method \w ray tracing algorithm
     public void algorithm() {
-        final double step = 0.05, scale = 200.0;
-
         for (final LightSourceCircle lightSource : lightSources.keySet()) {
-            final List<Line> lightRays = new ArrayList<>((int) Math.ceil(360 / step));
+            final List<Line> lightRays = new ArrayList<>((int) Math.ceil(360 / DEGREES_STEP));
 
             // spawns (360 / step) light rays in all directions from each light source
-            for (double i = 0; i < 360; i += step) {
-                final Line lightRay = new Line(new Point(lightSource.getCenter()), new Point((1 - scale) * lightSource.getCenter().getX() + scale * (lightSource.getCenter().getX() + lightSource.getRadius() * Math.cos(Math.toRadians(i))), (1 - scale) * lightSource.getCenter().getY() + scale * (lightSource.getCenter().getY() + lightSource.getRadius() * Math.sin(Math.toRadians(i)))));
+            for (double i = 0; i < 360; i += DEGREES_STEP) {
+                final Line lightRay = new Line(new Point(lightSource.getCenter()),
+                        new Point(lightSource.getCenter().getX() + lightSource.getLightDistance() * Math.cos(Math.toRadians(i)),
+                                lightSource.getCenter().getY() + lightSource.getLightDistance() * Math.sin(Math.toRadians(i))));
 
                 for (final DefaultCircle defaultObject : this.defaultObjects) {
                     final Point intersectionPoint;
