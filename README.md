@@ -25,7 +25,7 @@ This is a lightweight 2D ray tracing simulation built with JavaFX. The applicati
 1. Download the latest release: [Releases](https://github.com/r0masaN/Simple2DRayTracing/releases)
 2. Extract the archive and run the executable file:
    ```sh
-   your_project.exe
+   2DRayTracingDemo.exe
    ```
 3. Enjoy real-time ray tracing!
 
