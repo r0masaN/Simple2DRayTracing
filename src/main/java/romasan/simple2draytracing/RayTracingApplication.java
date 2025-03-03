@@ -99,6 +99,25 @@ public class RayTracingApplication extends Application {
                             case KeyCode.A -> current.move(new Point(-speed, 0.0)); // move left
                             case KeyCode.S -> current.move(new Point(0.0, -speed)); // move down
                             case KeyCode.D -> current.move(new Point(speed, 0.0)); // move right
+                            case KeyCode.DIGIT1 -> current.subtractOpacity(0.02); // decrease object opacity
+                            case KeyCode.DIGIT2 -> current.addOpacity(0.02); // increase object opacity
+                            case KeyCode.DIGIT3 -> current.subtractRadius(1.0); // decrease object radius
+                            case KeyCode.DIGIT4 -> current.addRadius(1.0); // increase object radius
+                            case KeyCode.LEFT -> { // decrease light brightness
+                                if (current instanceof LightSourceCircle lightSource) {
+                                    lightSource.subtractLightOpacity(0.002);
+                                }
+                            }
+                            case KeyCode.RIGHT -> { // increase light brightness
+                                if (current instanceof LightSourceCircle lightSource) {
+                                    lightSource.addLightOpacity(0.002);
+                                }
+                            }
+                            case KeyCode.ENTER -> { // toggle light source
+                                if (current instanceof LightSourceCircle lightSource) {
+                                    lightSource.toggleActive();
+                                }
+                            }
                             default -> reDrawScene = false;
                         }
 
@@ -140,12 +159,15 @@ public class RayTracingApplication extends Application {
         // draw light rays second
         for (final var lightSourceWihLightRays : lightSources.entrySet()) {
             final LightSourceCircle lightSource = lightSourceWihLightRays.getKey();
-            final Color lightColor = lightSource.getLightColor(),
-                    lightColorWithOpacity = Color.color(lightColor.getRed(), lightColor.getGreen(), lightColor.getBlue(), lightSource.getLightOpacity());
-            gc.setStroke(lightColorWithOpacity);
 
-            for (final Line lightRay : lightSourceWihLightRays.getValue()) {
-                gc.strokeLine(lightRay.getStart().getX(), HEIGHT - lightRay.getStart().getY(), lightRay.getEnd().getX(), HEIGHT - lightRay.getEnd().getY());
+            if (lightSource.isActive()) {
+                final Color lightColor = lightSource.getLightColor(),
+                        lightColorWithOpacity = Color.color(lightColor.getRed(), lightColor.getGreen(), lightColor.getBlue(), lightSource.getLightOpacity());
+                gc.setStroke(lightColorWithOpacity);
+
+                for (final Line lightRay : lightSourceWihLightRays.getValue()) {
+                    gc.strokeLine(lightRay.getStart().getX(), HEIGHT - lightRay.getStart().getY(), lightRay.getEnd().getX(), HEIGHT - lightRay.getEnd().getY());
+                }
             }
         }
 

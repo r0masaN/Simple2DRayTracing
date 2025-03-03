@@ -14,6 +14,20 @@ public final class LightSourceCircle extends AbstractCircle {
         this.isActive = true;
     }
 
+    public void addLightOpacity(final double deltaLightOpacity) {
+        if (deltaLightOpacity > 0.0 && deltaLightOpacity <= 1.0 && this.lightOpacity < 1.0) {
+            final double newLightOpacity = this.lightOpacity + deltaLightOpacity;
+            if (newLightOpacity <= 1.0) this.lightOpacity = Math.min(newLightOpacity, 1.0);
+        }
+    }
+
+    public void subtractLightOpacity(final double deltaLightOpacity) {
+        if (deltaLightOpacity > 0.0 && deltaLightOpacity <= 1.0 && this.lightOpacity > 0.0) {
+            final double newLightOpacity = this.lightOpacity - deltaLightOpacity;
+            if (newLightOpacity >= 0.0) this.lightOpacity = Math.max(newLightOpacity, 0.0);
+        }
+    }
+
     public void toggleActive() {
         this.isActive = !this.isActive;
     }
