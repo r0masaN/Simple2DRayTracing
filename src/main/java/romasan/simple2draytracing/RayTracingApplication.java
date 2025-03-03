@@ -87,8 +87,7 @@ public class RayTracingApplication extends Application {
             switch (event.getCode()) {
                 case KeyCode.F11 -> stage.setFullScreen(!stage.isFullScreen()); // fullscreen mode
                 case KeyCode.OPEN_BRACKET -> speed = (byte) Math.max(speed - 2, 2); // decrease speed (2..16 \w step 2)
-                case KeyCode.CLOSE_BRACKET ->
-                        speed = (byte) Math.min(speed + 2, 16); // increase speed (2..16 \w step 2)
+                case KeyCode.CLOSE_BRACKET -> speed = (byte) Math.min(speed + 2, 16); // increase speed (2..16 \w step 2)
                 default -> {
                     if (current != null) {
                         boolean reDrawScene = true;
