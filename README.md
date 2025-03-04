@@ -31,7 +31,7 @@ This is a lightweight 2D ray tracing simulation built with JavaFX. The applicati
 | F | Toggle controlled light source (on/off) |
 
 ## How to Run
-1. Download the [latest release](https://github.com/r0masaN/Simple2DRayTracing/releases/tag/v0.1.0)
+1. Download the [latest release](https://github.com/r0masaN/Simple2DRayTracing/releases/tag/v0.1.1)
 2. Extract the archive and run the executable file (2DRayTracingDemo.exe)
 3. Enjoy real-time ray tracing!
 
