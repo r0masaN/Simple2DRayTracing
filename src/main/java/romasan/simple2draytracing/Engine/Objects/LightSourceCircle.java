@@ -20,17 +20,13 @@ public final class LightSourceCircle extends AbstractCircle {
     }
 
     public void addLightOpacity(final double deltaLightOpacity) {
-        if (deltaLightOpacity > 0.0 && deltaLightOpacity <= 1.0 && this.lightOpacity < 1.0) {
-            final double newLightOpacity = this.lightOpacity + deltaLightOpacity;
-            if (newLightOpacity <= 1.0) this.lightOpacity = Math.min(newLightOpacity, 1.0);
-        }
+        if (deltaLightOpacity > 0.0 && deltaLightOpacity <= 1.0 && this.lightOpacity + deltaLightOpacity <= 1.0 + 10e-6)
+            this.lightOpacity = Math.min(this.lightOpacity + deltaLightOpacity, 1.0);
     }
 
     public void subtractLightOpacity(final double deltaLightOpacity) {
-        if (deltaLightOpacity > 0.0 && deltaLightOpacity <= 1.0 && this.lightOpacity > 0.0) {
-            final double newLightOpacity = this.lightOpacity - deltaLightOpacity;
-            if (newLightOpacity >= 0.0) this.lightOpacity = Math.max(newLightOpacity, 0.0);
-        }
+        if (deltaLightOpacity > 0.0 && deltaLightOpacity <= 1.0 && this.lightOpacity - deltaLightOpacity > -10e-6)
+            this.lightOpacity = Math.max(this.lightOpacity - deltaLightOpacity, 0.0);
     }
 
     public void addLightDistance(final double deltaLightDistance) {
@@ -44,7 +40,8 @@ public final class LightSourceCircle extends AbstractCircle {
     }
 
     public void addStartAngleDegree(final double deltaStartAngleDegree) {
-        if (deltaStartAngleDegree > 0.0) this.startAngleDegree = (this.startAngleDegree + deltaStartAngleDegree) % 360.0;
+        if (deltaStartAngleDegree > 0.0)
+            this.startAngleDegree = (this.startAngleDegree + deltaStartAngleDegree) % 360.0;
     }
 
     public void subtractStartAngleDegree(final double deltaStartAngleDegree) {
