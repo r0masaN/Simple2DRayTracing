@@ -10,7 +10,7 @@ This is a lightweight 2D ray tracing simulation built with JavaFX. The applicati
 - **Real-time Ray Tracing** — Simulates light behavior with object interactions.
 - **Interactive Environment** — Move objects, control speed and toggle full-screen mode.
 - **Optimized Rendering** — Utilizes JavaFX Canvas for smooth performance.
-- **Light and Object Manipulation** — Select objects and control their movement, affecting real-time ray tracing.
+- **Light and Object Manipulation** — Select objects and control their movement, opacity, light rays opacity, distance, etc. affecting real-time ray tracing.
 
 ## Controls
 | Key | Action |
@@ -25,6 +25,8 @@ This is a lightweight 2D ray tracing simulation built with JavaFX. The applicati
 | O/P | Decrease/increase controlled object's opacity (from 0 to 1 pixels in increments of 0.02) |
 | Z/X | Decrease/increase controlled light source's light rays distance (from 0 to 2500 pixels in increments of light spreading speed) |
 | Q/E | Decrease/increase controlled light source's light rays opacity (from 0 to 1 pixels in increments of 0.002) |
+| H/J | Rotate controlled light source clockwise/counterclockwise (from 0 to 359 degrees in increments of 1 degree) |
+| K/L | Decrease/increase controlled light source's illumination angle (from 0 to 359 degrees in increments of 1 degree) |
 | F | Toggle controlled light source (on/off) |
 
 ## How to Run
