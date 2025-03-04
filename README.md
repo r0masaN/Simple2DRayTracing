@@ -17,6 +17,7 @@ This is a lightweight 2D ray tracing simulation built with JavaFX. The applicati
 |-----|--------|
 | F11 | Toggle full-screen mode |
 | ESC | Close app |
+| TAB | Toggle HUD (on/off) |
 | ↓/↑ | Decrease/increase object movement speed (from 2 to 16 pixels/step in increments of 2) |
 | ←/→ | Decrease/increase light spreading speed (from 2 to 16 pixels/step in increments of 2) |
 | Left Mouse Click | Select an object to control |
