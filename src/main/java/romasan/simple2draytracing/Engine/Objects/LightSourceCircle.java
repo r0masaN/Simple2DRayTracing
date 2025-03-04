@@ -4,16 +4,18 @@ import javafx.scene.paint.Color;
 
 public final class LightSourceCircle extends AbstractCircle {
     private Color lightColor;
-    private double lightOpacity;
-    private double lightDistance;
+    private double lightOpacity, lightDistance, startAngleDegree, angleDegrees;
     private boolean isActive;
 
     public LightSourceCircle(final Point center, final double radius, final Color color, final double opacity,
-                             final Color lightColor, final double lightOpacity, final double lightDistance) {
+                             final Color lightColor, final double lightOpacity, final double lightDistance,
+                             final double startAngleDegree, final double angleDegrees) {
         super(center, radius, color, opacity);
         this.lightColor = lightColor;
         this.lightOpacity = lightOpacity;
         this.lightDistance = lightDistance;
+        this.startAngleDegree = startAngleDegree;
+        this.angleDegrees = angleDegrees;
         this.isActive = true;
     }
 
@@ -41,6 +43,28 @@ public final class LightSourceCircle extends AbstractCircle {
             this.lightDistance = Math.max(this.lightDistance - deltaLightDistance, 0.0);
     }
 
+    public void addStartAngleDegree(final double deltaStartAngleDegree) {
+        if (deltaStartAngleDegree > 0.0) this.startAngleDegree = (this.startAngleDegree + deltaStartAngleDegree) % 360.0;
+    }
+
+    public void subtractStartAngleDegree(final double deltaStartAngleDegree) {
+        if (deltaStartAngleDegree > 0.0) {
+            this.startAngleDegree = (this.startAngleDegree - deltaStartAngleDegree) % 360.0;
+            if (this.startAngleDegree < 0.0) this.startAngleDegree += 360.0;
+        }
+    }
+
+    public void addAngleDegrees(final double deltaAngleDegrees) {
+        if (deltaAngleDegrees > 0.0) this.angleDegrees = (this.angleDegrees + deltaAngleDegrees) % 360.0;
+    }
+
+    public void subtractAngleDegrees(final double deltaAngleDegree) {
+        if (deltaAngleDegree > 0.0) {
+            this.angleDegrees = (this.angleDegrees - deltaAngleDegree) % 360.0;
+            if (this.angleDegrees < 0.0) this.angleDegrees += 360.0;
+        }
+    }
+
     public void toggleActive() {
         this.isActive = !this.isActive;
     }
@@ -57,6 +81,14 @@ public final class LightSourceCircle extends AbstractCircle {
         return this.lightDistance;
     }
 
+    public double getStartAngleDegree() {
+        return this.startAngleDegree;
+    }
+
+    public double getAngleDegrees() {
+        return this.angleDegrees;
+    }
+
     public boolean isActive() {
         return this.isActive;
     }
@@ -71,6 +103,14 @@ public final class LightSourceCircle extends AbstractCircle {
 
     public void setLightDistance(final double lightDistance) {
         this.lightDistance = lightDistance;
+    }
+
+    public void setStartAngleDegree(final double startAngleDegree) {
+        this.startAngleDegree = startAngleDegree;
+    }
+
+    public void setAngleDegrees(final double angleDegrees) {
+        this.angleDegrees = angleDegrees;
     }
 
     public void setActive(final boolean isActive) {

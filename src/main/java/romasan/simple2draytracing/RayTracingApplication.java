@@ -37,13 +37,17 @@ public class RayTracingApplication extends Application {
         final Engine engine = new Engine(
                 List.of(
                         // Yellow light source
-                        new LightSourceCircle(new Point(935.0, 515.0), 20.0, Color.YELLOW, 1.0, Color.WHEAT, 0.025, 2200.0),
+                        new LightSourceCircle(new Point(935.0, 515.0), 20.0, Color.YELLOW, 1.0,
+                                Color.WHEAT, 0.025, 2200.0, 0.0, 360.0),
                         // Cyan light source
-                        new LightSourceCircle(new Point(1450.0, 115.0), 30.0, Color.CYAN, 1.0, Color.CYAN, 0.025, 2200.0),
+                        new LightSourceCircle(new Point(1450.0, 115.0), 30.0, Color.CYAN, 1.0,
+                                Color.CYAN, 0.025, 2200.0, 0.0, 360.0),
                         // Magenta light source
-                        new LightSourceCircle(new Point(315.0, 880.0), 40.0, Color.MAGENTA, 1.0, Color.MAGENTA, 0.02, 2200.0),
+                        new LightSourceCircle(new Point(315.0, 880.0), 40.0, Color.MAGENTA, 1.0,
+                                Color.MAGENTA, 0.02, 2200.0, 0.0, 360.0),
                         // White light source
-                        new LightSourceCircle(new Point(1600.0, 600.0), 10.0, Color.WHITE, 0.0, Color.WHITE, 0.02, 2200.0),
+                        new LightSourceCircle(new Point(1600.0, 600.0), 10.0, Color.WHITE, 0.0,
+                                Color.WHITE, 0.02, 2200.0, 0.0, 360.0),
                         // 8 different-sized different-colored circles
                         new DefaultCircle(new Point(200.0, 200.0), 75.0, Color.RED, 1.0),
                         new DefaultCircle(new Point(1000.0, 300.0), 100.0, Color.GREEN, 1.0),
@@ -104,6 +108,7 @@ public class RayTracingApplication extends Application {
                             case KeyCode.A -> current.move(new Point(-moveSpeed, 0.0)); // move left
                             case KeyCode.S -> current.move(new Point(0.0, -moveSpeed)); // move down
                             case KeyCode.D -> current.move(new Point(moveSpeed, 0.0)); // move right
+
                             case KeyCode.R -> current.subtractRadius(1.0); // decrease object radius
                             case KeyCode.T -> current.addRadius(1.0); // increase object radius
                             case KeyCode.O -> current.subtractOpacity(0.02); // decrease object opacity
@@ -129,6 +134,28 @@ public class RayTracingApplication extends Application {
                                     lightSource.addLightOpacity(0.002);
                                 }
                             }
+
+                            case KeyCode.H -> { // rotate light source clockwise
+                                if (current instanceof LightSourceCircle lightSource) {
+                                    lightSource.subtractStartAngleDegree(1.0);
+                                }
+                            }
+                            case KeyCode.J -> { // rotate light source counterclockwise
+                                if (current instanceof LightSourceCircle lightSource) {
+                                    lightSource.addStartAngleDegree(1.0);
+                                }
+                            }
+                            case KeyCode.K -> { // decrease illumination angle
+                                if (current instanceof LightSourceCircle lightSource) {
+                                    lightSource.subtractAngleDegrees(1.0);
+                                }
+                            }
+                            case KeyCode.L -> { // increase illumination angle
+                                if (current instanceof LightSourceCircle lightSource) {
+                                    lightSource.addAngleDegrees(1.0);
+                                }
+                            }
+
                             case KeyCode.F -> { // toggle light source
                                 if (current instanceof LightSourceCircle lightSource) {
                                     lightSource.toggleActive();

@@ -32,13 +32,15 @@ public final class Engine {
         for (final LightSourceCircle lightSource : lightSources.keySet()) {
             final List<Line> lightRays = new ArrayList<>((int) Math.ceil(360 / DEGREES_STEP));
 
+            final double startAngleDegree = lightSource.getStartAngleDegree(), endAngleDegree = startAngleDegree + lightSource.getAngleDegrees();
             // spawns (360 / step) light rays in all directions from each light source
-            for (double i = 0.0; i < 360.0; i += DEGREES_STEP) {
-                final double degree = Math.round(i * 1000.0) / 1000.0;
-                if (degree < 360.0) {
+            for (double i = startAngleDegree; i < endAngleDegree; i += DEGREES_STEP) {
+                final double angleDegree = Math.round(i * 1000.0) / 1000.0;
+
+                if (angleDegree < endAngleDegree) {
                     final Line lightRay = new Line(new Point(lightSource.getCenter()),
-                            new Point(lightSource.getCenter().getX() + lightSource.getLightDistance() * Math.cos(Math.toRadians(degree)),
-                                    lightSource.getCenter().getY() + lightSource.getLightDistance() * Math.sin(Math.toRadians(degree))));
+                            new Point(lightSource.getCenter().getX() + lightSource.getLightDistance() * Math.cos(Math.toRadians(angleDegree)),
+                                    lightSource.getCenter().getY() + lightSource.getLightDistance() * Math.sin(Math.toRadians(angleDegree))));
 
                     for (final DefaultCircle defaultObject : this.defaultObjects) {
                         final Point intersectionPoint;
