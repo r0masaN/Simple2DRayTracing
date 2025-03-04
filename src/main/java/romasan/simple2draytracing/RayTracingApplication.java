@@ -42,7 +42,7 @@ public class RayTracingApplication extends Application {
         stage.setFullScreen(true);
 
         final Text hudText = new Text();
-        hudText.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        hudText.setFont(Font.font("Calibri", FontWeight.BOLD, 20));
         hudText.setFill(Color.WHITE);
         hudText.setTextAlignment(TextAlignment.LEFT);
         hudText.setX(15);
@@ -269,25 +269,25 @@ public class RayTracingApplication extends Application {
         sj.add("Objects: " + (defaultObjectsOnScene + lightSources.size() + " (" + defaultObjectsOnScene + " default, "
                 + lightSources.stream().filter(LightSourceCircle::isActive).count() + "/" + lightSources.size() + " active light sources)"));
         sj.add("");
-        sj.add("Move speed: " + moveSpeed + " px/step");
-        sj.add("Light distance delta: " + lightDistanceDelta + " px/step");
+        sj.add("[↓/↑] Move speed: " + moveSpeed + " px/step");
+        sj.add("[←/→] Light distance delta: " + lightDistanceDelta + " px/step");
         sj.add("");
 
         if (selectedObject != null) {
             sj.add("Selected object params:");
-            sj.add("    Coordinates: " + (short) selectedObject.getCenter().getX() + "px, " + (short) selectedObject.getCenter().getY() + "px");
-            sj.add("    Radius: " + (short) selectedObject.getRadius() + "px");
+            sj.add("    [W/A/S/D] Coordinates: " + (short) selectedObject.getCenter().getX() + "px, " + (short) selectedObject.getCenter().getY() + "px");
+            sj.add("    [R/T] Radius: " + (short) selectedObject.getRadius() + "px");
             sj.add("    Color: " + selectedObject.getColor());
-            sj.add("    Opacity: " + (byte) (selectedObject.getOpacity() * 100) + "%");
+            sj.add("    [O/P] Opacity: " + (byte) (selectedObject.getOpacity() * 100) + "%");
 
             if (selectedObject instanceof LightSourceCircle lightSource) {
                 sj.add("");
-                sj.add("    Status: " + (lightSource.isActive() ? "ACTIVE" : "INACTIVE"));
+                sj.add("    [F] Status: " + (lightSource.isActive() ? "ACTIVE" : "INACTIVE"));
                 sj.add("    Light color: " + lightSource.getLightColor());
-                sj.add(String.format("    Light opacity: %.1f%%", lightSource.getLightOpacity() * 100));
-                sj.add("    Light distance: " + (short) lightSource.getLightDistance() + "px");
-                sj.add("    Rotation angle: " + (short) lightSource.getStartAngleDegree() + "°");
-                sj.add("    Illumination angle: " + (short) lightSource.getAngleDegrees() + "°");
+                sj.add(String.format("    [Q/E] Light opacity: %.1f%%", lightSource.getLightOpacity() * 100));
+                sj.add("    [Z/X] Light distance: " + (short) lightSource.getLightDistance() + "px");
+                sj.add("    [H/J] Rotation angle: " + (short) lightSource.getStartAngleDegree() + "°");
+                sj.add("    [K/L] Illumination angle: " + (short) lightSource.getAngleDegrees() + "°");
             }
         }
 
