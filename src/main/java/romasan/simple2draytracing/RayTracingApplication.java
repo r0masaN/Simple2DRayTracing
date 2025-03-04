@@ -6,8 +6,13 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import romasan.simple2draytracing.Engine.Engine;
 import romasan.simple2draytracing.Engine.Objects.*;
@@ -15,11 +20,13 @@ import romasan.simple2draytracing.Engine.Objects.*;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.StringJoiner;
 import java.util.function.Consumer;
 
 public class RayTracingApplication extends Application {
     private static final int WIDTH = 1920, HEIGHT = 1080;
-    private static AbstractCircle current = null;
+    private static AbstractCircle selectedObject = null;
     private static byte moveSpeed = 2, lightDistanceDelta = 2;
 
     @Override
@@ -34,14 +41,22 @@ public class RayTracingApplication extends Application {
         stage.setResizable(false);
         stage.setFullScreen(true);
 
+        final Text hudText = new Text();
+        hudText.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        hudText.setFill(Color.WHITE);
+        hudText.setTextAlignment(TextAlignment.LEFT);
+        hudText.setX(15);
+        hudText.setY(30);
+        root.getChildren().add(hudText);
+
         final Engine engine = new Engine(
                 List.of(
                         // Yellow light source
                         new LightSourceCircle(new Point(935.0, 515.0), 20.0, Color.YELLOW, 1.0,
-                                Color.WHEAT, 0.025, 2200.0, 0.0, 360.0),
+                                Color.WHEAT, 0.024, 2200.0, 0.0, 360.0),
                         // Cyan light source
                         new LightSourceCircle(new Point(1450.0, 115.0), 30.0, Color.CYAN, 1.0,
-                                Color.CYAN, 0.025, 2200.0, 0.0, 360.0),
+                                Color.CYAN, 0.024, 2200.0, 0.0, 360.0),
                         // Magenta light source
                         new LightSourceCircle(new Point(315.0, 880.0), 40.0, Color.MAGENTA, 1.0,
                                 Color.MAGENTA, 0.02, 2200.0, 0.0, 360.0),
@@ -65,104 +80,129 @@ public class RayTracingApplication extends Application {
         final Map<LightSourceCircle, List<Line>> lightSources = engine.getLightSources();
 
         drawScene(gc, lightSources, defaultObjects);
+        updateHUD(hudText, lightSources.keySet(), (short) defaultObjects.size());
 
         scene.setOnMouseClicked(event -> {
-            final Point clicked = new Point(event.getX(), HEIGHT - event.getY());
-            boolean selected = false;
+            switch (event.getButton()) {
+                case MouseButton.PRIMARY -> {
+                    final Point clicked = new Point(event.getX(), HEIGHT - event.getY());
+                    boolean isSelected = false;
 
-            for (final LightSourceCircle lightSource : lightSources.keySet()) {
-                if (lightSource.contains(clicked)) {
-                    current = lightSource;
-                    selected = true;
-                    break;
-                }
-            }
-
-            if (!selected) {
-                for (final DefaultCircle object : defaultObjects) {
-                    if (object.contains(clicked)) {
-                        current = object;
-                        break;
+                    for (final LightSourceCircle lightSource : lightSources.keySet()) {
+                        if (lightSource.contains(clicked)) {
+                            selectedObject = lightSource;
+                            isSelected = true;
+                            break;
+                        }
                     }
+
+                    if (!isSelected) {
+                        for (final DefaultCircle object : defaultObjects) {
+                            if (object.contains(clicked)) {
+                                selectedObject = object;
+                                isSelected = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (isSelected) updateHUD(hudText, lightSources.keySet(), (short) defaultObjects.size());
+                }
+
+                case MouseButton.SECONDARY -> {
+                    selectedObject = null;
+                    updateHUD(hudText, lightSources.keySet(), (short) defaultObjects.size());
                 }
             }
         });
 
-        //TODO худ с инфой о выбранном объекте, а также о текущей скорости, дельте дистанции лучей и пр.
-
         scene.setOnKeyPressed(event -> {
+            boolean updateHud = true;
+
             switch (event.getCode()) {
-                case KeyCode.F11 -> stage.setFullScreen(!stage.isFullScreen()); // fullscreen mode
+                case KeyCode.F11 -> {
+                    stage.setFullScreen(!stage.isFullScreen()); // fullscreen mode
+                    updateHud = false;
+                }
                 case KeyCode.ESCAPE -> stage.close(); // close
+                case KeyCode.TAB -> {
+                    hudText.setVisible(!hudText.isVisible());
+                    updateHud = false;
+                }
 
                 case KeyCode.DOWN -> moveSpeed = (byte) Math.max(moveSpeed - 2, 2); // decrease speed (2..16 \w step 2)
                 case KeyCode.UP -> moveSpeed = (byte) Math.min(moveSpeed + 2, 16); // increase speed (2..16 \w step 2)
-                case KeyCode.LEFT -> lightDistanceDelta = (byte) Math.max(lightDistanceDelta - 2, 2); // decrease light speed delta (2..16 \w step 2)
-                case KeyCode.RIGHT -> lightDistanceDelta = (byte) Math.min(lightDistanceDelta + 2, 16); // increase light speed delta (2..16 \w step 2)
+                // decrease light speed delta (2..16 \w step 2)
+                case KeyCode.LEFT -> lightDistanceDelta = (byte) Math.max(lightDistanceDelta - 2, 2);
+                // increase light speed delta (2..16 \w step 2)
+                case KeyCode.RIGHT -> lightDistanceDelta = (byte) Math.min(lightDistanceDelta + 2, 16);
 
                 default -> {
-                    if (current != null) {
+                    if (selectedObject != null) {
                         boolean reDrawScene = true;
                         switch (event.getCode()) {
-                            case KeyCode.W -> current.move(new Point(0.0, moveSpeed)); // move up
-                            case KeyCode.A -> current.move(new Point(-moveSpeed, 0.0)); // move left
-                            case KeyCode.S -> current.move(new Point(0.0, -moveSpeed)); // move down
-                            case KeyCode.D -> current.move(new Point(moveSpeed, 0.0)); // move right
+                            case KeyCode.W -> selectedObject.move(new Point(0.0, moveSpeed)); // move up
+                            case KeyCode.A -> selectedObject.move(new Point(-moveSpeed, 0.0)); // move left
+                            case KeyCode.S -> selectedObject.move(new Point(0.0, -moveSpeed)); // move down
+                            case KeyCode.D -> selectedObject.move(new Point(moveSpeed, 0.0)); // move right
 
-                            case KeyCode.R -> current.subtractRadius(1.0); // decrease object radius
-                            case KeyCode.T -> current.addRadius(1.0); // increase object radius
-                            case KeyCode.O -> current.subtractOpacity(0.02); // decrease object opacity
-                            case KeyCode.P -> current.addOpacity(0.02); // increase object opacity
+                            case KeyCode.R -> selectedObject.subtractRadius(1.0); // decrease object radius
+                            case KeyCode.T -> selectedObject.addRadius(1.0); // increase object radius
+                            case KeyCode.O -> selectedObject.subtractOpacity(0.02); // decrease object opacity
+                            case KeyCode.P -> selectedObject.addOpacity(0.02); // increase object opacity
 
                             case KeyCode.Z -> { // decrease light distance
-                                if (current instanceof LightSourceCircle lightSource) {
+                                if (selectedObject instanceof LightSourceCircle lightSource) {
                                     lightSource.subtractLightDistance(lightDistanceDelta);
                                 }
                             }
                             case KeyCode.X -> { // increase light distance
-                                if (current instanceof LightSourceCircle lightSource) {
+                                if (selectedObject instanceof LightSourceCircle lightSource) {
                                     lightSource.addLightDistance(lightDistanceDelta);
                                 }
                             }
                             case KeyCode.Q -> { // decrease light brightness
-                                if (current instanceof LightSourceCircle lightSource) {
+                                if (selectedObject instanceof LightSourceCircle lightSource) {
                                     lightSource.subtractLightOpacity(0.002);
                                 }
                             }
                             case KeyCode.E -> { // increase light brightness
-                                if (current instanceof LightSourceCircle lightSource) {
+                                if (selectedObject instanceof LightSourceCircle lightSource) {
                                     lightSource.addLightOpacity(0.002);
                                 }
                             }
 
                             case KeyCode.H -> { // rotate light source clockwise
-                                if (current instanceof LightSourceCircle lightSource) {
+                                if (selectedObject instanceof LightSourceCircle lightSource) {
                                     lightSource.subtractStartAngleDegree(1.0);
                                 }
                             }
                             case KeyCode.J -> { // rotate light source counterclockwise
-                                if (current instanceof LightSourceCircle lightSource) {
+                                if (selectedObject instanceof LightSourceCircle lightSource) {
                                     lightSource.addStartAngleDegree(1.0);
                                 }
                             }
                             case KeyCode.K -> { // decrease illumination angle
-                                if (current instanceof LightSourceCircle lightSource) {
+                                if (selectedObject instanceof LightSourceCircle lightSource) {
                                     lightSource.subtractAngleDegrees(1.0);
                                 }
                             }
                             case KeyCode.L -> { // increase illumination angle
-                                if (current instanceof LightSourceCircle lightSource) {
+                                if (selectedObject instanceof LightSourceCircle lightSource) {
                                     lightSource.addAngleDegrees(1.0);
                                 }
                             }
 
                             case KeyCode.F -> { // toggle light source
-                                if (current instanceof LightSourceCircle lightSource) {
+                                if (selectedObject instanceof LightSourceCircle lightSource) {
                                     lightSource.toggleActive();
                                 }
                             }
 
-                            default -> reDrawScene = false;
+                            default -> {
+                                reDrawScene = false;
+                                updateHud = false;
+                            }
                         }
 
                         if (reDrawScene) {
@@ -172,13 +212,15 @@ public class RayTracingApplication extends Application {
                     }
                 }
             }
+
+            if (updateHud) updateHUD(hudText, lightSources.keySet(), (short) defaultObjects.size());
         });
 
         stage.setScene(scene);
         stage.show();
     }
 
-    // drawing all objects, light sources & light rays
+    // draws all objects, light sources & light rays
     private static void drawScene(final GraphicsContext gc, final Map<LightSourceCircle, List<Line>> lightSources, final List<DefaultCircle> defaultObjects) {
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, WIDTH, HEIGHT);
@@ -219,6 +261,37 @@ public class RayTracingApplication extends Application {
         for (final LightSourceCircle lightSource : lightSources.keySet()) {
             drawObject.accept(lightSource);
         }
+    }
+
+    // displays info about scene, objects, etc.
+    private static void updateHUD(final Text hudText, final Set<LightSourceCircle> lightSources, final short defaultObjectsOnScene) {
+        final StringJoiner sj = new StringJoiner("\n");
+        sj.add("Objects: " + (defaultObjectsOnScene + lightSources.size() + " (" + defaultObjectsOnScene + " default, "
+                + lightSources.stream().filter(LightSourceCircle::isActive).count() + "/" + lightSources.size() + " active light sources)"));
+        sj.add("");
+        sj.add("Move speed: " + moveSpeed + " px/step");
+        sj.add("Light distance delta: " + lightDistanceDelta + " px/step");
+        sj.add("");
+
+        if (selectedObject != null) {
+            sj.add("Selected object params:");
+            sj.add("    Coordinates: " + (short) selectedObject.getCenter().getX() + "px, " + (short) selectedObject.getCenter().getY() + "px");
+            sj.add("    Radius: " + (short) selectedObject.getRadius() + "px");
+            sj.add("    Color: " + selectedObject.getColor());
+            sj.add("    Opacity: " + (byte) (selectedObject.getOpacity() * 100) + "%");
+
+            if (selectedObject instanceof LightSourceCircle lightSource) {
+                sj.add("");
+                sj.add("    Status: " + (lightSource.isActive() ? "ACTIVE" : "INACTIVE"));
+                sj.add("    Light color: " + lightSource.getLightColor());
+                sj.add(String.format("    Light opacity: %.1f%%", lightSource.getLightOpacity() * 100));
+                sj.add("    Light distance: " + (short) lightSource.getLightDistance() + "px");
+                sj.add("    Rotation angle: " + (short) lightSource.getStartAngleDegree() + "°");
+                sj.add("    Illumination angle: " + (short) lightSource.getAngleDegrees() + "°");
+            }
+        }
+
+        hudText.setText(sj.toString());
     }
 
     public static void main(final String[] args) {
