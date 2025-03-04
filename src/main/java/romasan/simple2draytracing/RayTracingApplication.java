@@ -61,7 +61,7 @@ public class RayTracingApplication extends Application {
                         new LightSourceCircle(new Point(315.0, 880.0), 40.0, Color.MAGENTA, 1.0,
                                 Color.MAGENTA, 0.02, 2200.0, 0.0, 360.0),
                         // White light source
-                        new LightSourceCircle(new Point(1600.0, 600.0), 10.0, Color.WHITE, 0.0,
+                        new LightSourceCircle(new Point(1600.0, 600.0), 30.0, Color.WHITE, 0.0,
                                 Color.WHITE, 0.02, 2200.0, 0.0, 360.0),
                         // 8 different-sized different-colored circles
                         new DefaultCircle(new Point(200.0, 200.0), 75.0, Color.RED, 1.0),

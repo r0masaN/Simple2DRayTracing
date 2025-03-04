@@ -34,13 +34,13 @@ public sealed class AbstractCircle permits DefaultCircle, LightSourceCircle {
     }
 
     public void addOpacity(final double deltaOpacity) {
-        if (deltaOpacity > 0.0 && deltaOpacity <= 1.0 && this.opacity + deltaOpacity <= 1.0)
-            this.opacity = Math.min(this.opacity + deltaOpacity, 1.0);
+        if (deltaOpacity > 0.0 && deltaOpacity <= 1.0 && this.opacity + deltaOpacity <= 1.0 + 10e-6)
+            this.opacity = Math.round(Math.min(this.opacity + deltaOpacity, 1.0) * 10e3) / 10e3;
     }
 
     public void subtractOpacity(final double deltaOpacity) {
-        if (deltaOpacity > 0.0 && deltaOpacity <= 1.0 && this.opacity - deltaOpacity >= 0.0)
-            this.opacity = Math.max(this.opacity - deltaOpacity, 0.0);
+        if (deltaOpacity > 0.0 && deltaOpacity <= 1.0 && this.opacity - deltaOpacity >= -10e-6)
+            this.opacity = Math.round(Math.max(this.opacity - deltaOpacity, 0.0) * 10e3) / 10e3;
     }
 
     public Point getCenter() {
