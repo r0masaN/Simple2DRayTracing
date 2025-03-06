@@ -23,6 +23,26 @@ public sealed class AbstractCircle permits DefaultCircle, LightSourceCircle {
         this.center.add(point);
     }
 
+    public void addRadius(final double deltaRadius) {
+        if (deltaRadius > 0.0 && this.radius + deltaRadius <= 1000.0)
+            this.radius = Math.min(this.radius + deltaRadius, 1000.0);
+    }
+
+    public void subtractRadius(final double deltaRadius) {
+        if (deltaRadius > 0.0 && this.radius - deltaRadius >= 0.0)
+            this.radius = Math.max(this.radius - deltaRadius, 0.0);
+    }
+
+    public void addOpacity(final double deltaOpacity) {
+        if (deltaOpacity > 0.0 && deltaOpacity <= 1.0 && this.opacity + deltaOpacity <= 1.0 + 10e-6)
+            this.opacity = Math.round(Math.min(this.opacity + deltaOpacity, 1.0) * 10e3) / 10e3;
+    }
+
+    public void subtractOpacity(final double deltaOpacity) {
+        if (deltaOpacity > 0.0 && deltaOpacity <= 1.0 && this.opacity - deltaOpacity >= -10e-6)
+            this.opacity = Math.round(Math.max(this.opacity - deltaOpacity, 0.0) * 10e3) / 10e3;
+    }
+
     public Point getCenter() {
         return this.center;
     }

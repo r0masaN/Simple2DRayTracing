@@ -12,6 +12,8 @@ public final class Engine {
     private final Map<LightSourceCircle, List<Line>> lightSources;
     private final List<DefaultCircle> defaultObjects;
 
+    private final static double DEGREES_STEP = 0.03;
+
     public Engine(final List<AbstractCircle> objects) {
         this.lightSources = new HashMap<>();
         this.defaultObjects = new ArrayList<>();
@@ -27,24 +29,29 @@ public final class Engine {
 
     // main method \w ray tracing algorithm
     public void algorithm() {
-        final double step = 0.05, scale = 200.0;
-
         for (final LightSourceCircle lightSource : lightSources.keySet()) {
-            final List<Line> lightRays = new ArrayList<>((int) Math.ceil(360 / step));
+            final List<Line> lightRays = new ArrayList<>((int) Math.ceil(360 / DEGREES_STEP));
 
+            final double startAngleDegree = lightSource.getStartAngleDegree(), endAngleDegree = startAngleDegree + lightSource.getAngleDegrees();
             // spawns (360 / step) light rays in all directions from each light source
-            for (double i = 0; i < 360; i += step) {
-                final Line lightRay = new Line(new Point(lightSource.getCenter()), new Point((1 - scale) * lightSource.getCenter().getX() + scale * (lightSource.getCenter().getX() + lightSource.getRadius() * Math.cos(Math.toRadians(i))), (1 - scale) * lightSource.getCenter().getY() + scale * (lightSource.getCenter().getY() + lightSource.getRadius() * Math.sin(Math.toRadians(i)))));
+            for (double i = startAngleDegree; i < endAngleDegree; i += DEGREES_STEP) {
+                final double angleDegree = Math.round(i * 1000.0) / 1000.0;
 
-                for (final DefaultCircle defaultObject : this.defaultObjects) {
-                    final Point intersectionPoint;
-                    // cuts off light ray when intersects \w any object (except light sources)
-                    if ((intersectionPoint = lightRay.intersectionPoint(defaultObject)) != null) {
-                        lightRay.setEnd(intersectionPoint);
+                if (angleDegree < endAngleDegree) {
+                    final Line lightRay = new Line(new Point(lightSource.getCenter()),
+                            new Point(lightSource.getCenter().getX() + lightSource.getLightDistance() * Math.cos(Math.toRadians(angleDegree)),
+                                    lightSource.getCenter().getY() + lightSource.getLightDistance() * Math.sin(Math.toRadians(angleDegree))));
+
+                    for (final DefaultCircle defaultObject : this.defaultObjects) {
+                        final Point intersectionPoint;
+                        // cuts off light ray when intersects \w any object (except light sources)
+                        if ((intersectionPoint = lightRay.intersectionPoint(defaultObject)) != null) {
+                            lightRay.setEnd(intersectionPoint);
+                        }
                     }
-                }
 
-                lightRays.add(lightRay);
+                    lightRays.add(lightRay);
+                }
             }
 
             this.lightSources.put(lightSource, lightRays);
