@@ -2,6 +2,9 @@ package romasan.simple2draytracing.Engine.Objects;
 
 import javafx.scene.paint.Color;
 
+import java.util.Objects;
+
+// parent class for all Circle classes
 public sealed class AbstractCircle permits DefaultCircle, LightSourceCircle {
     private Point center;
     private double radius;
@@ -73,5 +76,20 @@ public sealed class AbstractCircle permits DefaultCircle, LightSourceCircle {
 
     public void setOpacity(final double opacity) {
         this.opacity = opacity;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.center, this.radius, this.color, this.opacity);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+
+        final AbstractCircle other = (AbstractCircle) obj;
+        return this.center.equals(other.center) && Double.compare(this.radius, other.radius) == 0 &&
+                this.color.equals(other.color) && Double.compare(this.opacity, other.opacity) == 0;
     }
 }

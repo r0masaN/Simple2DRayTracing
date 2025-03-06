@@ -1,5 +1,7 @@
 package romasan.simple2draytracing.Engine.Objects;
 
+import java.util.Objects;
+
 // simple Line class
 public final class Line {
     private Point start, end;
@@ -101,5 +103,19 @@ public final class Line {
 
     public void setEnd(final Point end) {
         this.updatePoints(null, end);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.start, this.end);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+
+        final Line other = (Line) obj;
+        return this.start.equals(other.start) && this.end.equals(other.end);
     }
 }
