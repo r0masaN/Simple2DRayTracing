@@ -2,6 +2,9 @@ package romasan.simple2draytracing.Engine.Objects;
 
 import javafx.scene.paint.Color;
 
+import java.util.Objects;
+
+// light source Circle class (for light sources)
 public final class LightSourceCircle extends AbstractCircle {
     private Color lightColor;
     private double lightOpacity, lightDistance, startAngleDegree, angleDegrees;
@@ -112,5 +115,22 @@ public final class LightSourceCircle extends AbstractCircle {
 
     public void setActive(final boolean isActive) {
         this.isActive = isActive;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), this.lightColor, this.lightOpacity, this.lightDistance,
+                this.startAngleDegree, this.angleDegrees, this.isActive);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass() || !super.equals(obj)) return false;
+
+        final LightSourceCircle other = (LightSourceCircle) obj;
+        return this.lightColor.equals(other.lightColor) && Double.compare(this.lightOpacity, other.lightOpacity) == 0 &&
+                Double.compare(this.lightDistance, other.lightDistance) == 0 && Double.compare(this.startAngleDegree, other.startAngleDegree) == 0
+                && Double.compare(this.angleDegrees, other.angleDegrees) == 0 && this.isActive == other.isActive;
     }
 }

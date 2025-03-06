@@ -1,5 +1,7 @@
 package romasan.simple2draytracing.Engine.Objects;
 
+import java.util.Objects;
+
 // simple Point class
 public final class Point {
     private double x, y;
@@ -37,5 +39,19 @@ public final class Point {
 
     public void setY(final double y) {
         this.y = y;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.x, this.y);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+
+        final Point other = (Point) obj;
+        return Double.compare(this.x, other.x) == 0 && Double.compare(this.y, other.y) == 0;
     }
 }
