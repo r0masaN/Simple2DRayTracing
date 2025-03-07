@@ -5,17 +5,25 @@ import javafx.scene.paint.Color;
 import java.util.Objects;
 
 // parent class for all Circle classes
-public sealed class AbstractCircle permits DefaultCircle, LightSourceCircle {
+public sealed abstract class AbstractCircle permits DefaultCircle, LightSourceCircle {
+    // const id for correct hashCode() working
+    protected long id;
     private Point center;
     private double radius;
     private Color color;
     private double opacity;
 
-    AbstractCircle(final Point center, final double radius, final Color color, final double opacity) {
+    protected AbstractCircle(final Point center, final double radius, final Color color, final double opacity) {
         this.center = center;
         this.radius = radius;
         this.color = color;
         this.opacity = opacity;
+
+        this.id = this.generateId();
+    }
+
+    protected long generateId() {
+        return Objects.hash(this.center, this.radius, this.color, this.opacity);
     }
 
     public boolean contains(final Point point) {
@@ -78,9 +86,12 @@ public sealed class AbstractCircle permits DefaultCircle, LightSourceCircle {
         this.opacity = opacity;
     }
 
+    // if hashCode() is similar to equals() then after changing any parameter hash code will also change
+    // which is undesired behaviour for collections base on hash codes
+    // but now equality by equals() doesn't guarantee equality by hashCode(), which is shit I guess
     @Override
     public int hashCode() {
-        return Objects.hash(this.center, this.radius, this.color, this.opacity);
+        return Objects.hash(this.id);
     }
 
     @Override

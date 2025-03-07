@@ -4,11 +4,19 @@ import java.util.Objects;
 
 // simple Line class
 public final class Line {
+    // const id for correct hashCode() working
+    private final long id;
     private Point start, end;
     private double k, b;
 
     public Line(final Point start, final Point end) {
         this.updatePoints(start, end);
+
+        this.id = this.generateId();
+    }
+
+    private long generateId() {
+        return Objects.hash(this.start, this.end);
     }
 
     private void updatePoints(final Point start, final Point end) {
@@ -107,7 +115,7 @@ public final class Line {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.start, this.end);
+        return Objects.hash(this.id);
     }
 
     @Override
