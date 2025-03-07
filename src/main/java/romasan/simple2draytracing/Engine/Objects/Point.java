@@ -4,21 +4,31 @@ import java.util.Objects;
 
 // simple Point class
 public final class Point {
+    // const id for correct hashCode() working
+    private final long id;
     private double x, y;
 
     public Point(final double x, final double y) {
         this.x = x;
         this.y = y;
+
+        this.id = this.generateId();
     }
 
     public Point(final Point other) {
         this.x = other.x;
         this.y = other.y;
+
+        this.id = this.generateId();
     }
 
     public void add(final Point other) {
         this.x += other.x;
         this.y += other.y;
+    }
+
+    private long generateId() {
+        return Objects.hash(this.x, this.y);
     }
 
     public double distance(final Point other) {
@@ -43,7 +53,7 @@ public final class Point {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.x, this.y);
+        return Objects.hash(this.id);
     }
 
     @Override

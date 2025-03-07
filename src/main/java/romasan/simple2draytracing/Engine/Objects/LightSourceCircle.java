@@ -20,6 +20,14 @@ public final class LightSourceCircle extends AbstractCircle {
         this.startAngleDegree = startAngleDegree;
         this.angleDegrees = angleDegrees;
         this.isActive = true;
+
+        this.id = this.generateId();
+    }
+
+    @Override
+    protected long generateId() {
+        return Objects.hash(super.generateId(), this.lightColor, this.lightOpacity, this.lightDistance,
+                this.startAngleDegree, this.angleDegrees, this.isActive);
     }
 
     public void addLightOpacity(final double deltaLightOpacity) {
@@ -115,12 +123,6 @@ public final class LightSourceCircle extends AbstractCircle {
 
     public void setActive(final boolean isActive) {
         this.isActive = isActive;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), this.lightColor, this.lightOpacity, this.lightDistance,
-                this.startAngleDegree, this.angleDegrees, this.isActive);
     }
 
     @Override
