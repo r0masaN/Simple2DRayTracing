@@ -14,8 +14,6 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
-import romasan.simple2draytracing.Engine.Engine;
-import romasan.simple2draytracing.Engine.Objects.*;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -24,9 +22,16 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
 
+import romasan.simple2draytracing.Engine.Engine;
+import romasan.simple2draytracing.Engine.Objects.ColoredObjects.ColoredCircle;
+import romasan.simple2draytracing.Engine.Objects.LightSources.CircleLightSource;
+import romasan.simple2draytracing.Engine.Objects.LightSources.LightSource;
+import romasan.simple2draytracing.Engine.Objects.Primitives.Line2D;
+import romasan.simple2draytracing.Engine.Objects.Primitives.Point2D;
+
 public class RayTracingApplication extends Application {
     private static final int WIDTH = 1920, HEIGHT = 1080;
-    private static AbstractCircle selectedObject = null;
+    private static ColoredCircle selectedObject = null;
     private static byte moveSpeed = 2, lightDistanceDelta = 2;
 
     @Override
@@ -52,32 +57,32 @@ public class RayTracingApplication extends Application {
         final Engine engine = new Engine(
                 List.of(
                         // Yellow light source
-                        new LightSourceCircle(new Point(935.0, 515.0), 20.0, Color.YELLOW, 1.0,
-                                Color.WHEAT, 0.024, 2200.0, 0.0, 360.0),
+                        new CircleLightSource(new Point2D(915.0, 495.0), 20.0, Color.YELLOW, 1.0,
+                                new LightSource(Color.WHEAT, 0.024, 2200.0, 0.0, 360.0)),
                         // Cyan light source
-                        new LightSourceCircle(new Point(1450.0, 115.0), 30.0, Color.CYAN, 1.0,
-                                Color.CYAN, 0.024, 2200.0, 0.0, 360.0),
+                        new CircleLightSource(new Point2D(1420.0, 85.0), 30.0, Color.CYAN, 1.0,
+                                new LightSource(Color.CYAN, 0.024, 2200.0, 0.0, 360.0)),
                         // Magenta light source
-                        new LightSourceCircle(new Point(315.0, 880.0), 40.0, Color.MAGENTA, 1.0,
-                                Color.MAGENTA, 0.02, 2200.0, 0.0, 360.0),
+                        new CircleLightSource(new Point2D(275.0, 840.0), 40.0, Color.MAGENTA, 1.0,
+                                new LightSource(Color.MAGENTA, 0.02, 2200.0, 0.0, 360.0)),
                         // White light source
-                        new LightSourceCircle(new Point(1600.0, 600.0), 30.0, Color.WHITE, 0.0,
-                                Color.WHITE, 0.02, 2200.0, 0.0, 360.0),
+                        new CircleLightSource(new Point2D(1570.0, 570.0), 30.0, Color.WHITE, 0.0,
+                                new LightSource(Color.WHITE, 0.02, 2200.0, 0.0, 360.0)),
                         // 8 different-sized different-colored circles
-                        new DefaultCircle(new Point(200.0, 200.0), 75.0, Color.RED, 1.0),
-                        new DefaultCircle(new Point(1000.0, 300.0), 100.0, Color.GREEN, 1.0),
-                        new DefaultCircle(new Point(1800.0, 250.0), 60.0, Color.BLUE, 1.0),
-                        new DefaultCircle(new Point(150.0, 850.0), 50.0, Color.ORANGE, 1.0),
-                        new DefaultCircle(new Point(450.0, 750.0), 35.0, Color.PURPLE, 1.0),
-                        new DefaultCircle(new Point(1120.0, 820.0), 40.0, Color.PINK, 1.0),
-                        new DefaultCircle(new Point(1400.0, 700.0), 45.0, Color.DARKBLUE, 1.0),
-                        new DefaultCircle(new Point(500.0, 1000.0), 20.0, Color.SEAGREEN, 1.0)
+                        new ColoredCircle(new Point2D(200.0, 200.0), 75.0, Color.RED, 1.0),
+                        new ColoredCircle(new Point2D(1000.0, 300.0), 100.0, Color.GREEN, 1.0),
+                        new ColoredCircle(new Point2D(1800.0, 250.0), 60.0, Color.BLUE, 1.0),
+                        new ColoredCircle(new Point2D(150.0, 850.0), 50.0, Color.ORANGE, 1.0),
+                        new ColoredCircle(new Point2D(450.0, 750.0), 35.0, Color.PURPLE, 1.0),
+                        new ColoredCircle(new Point2D(1120.0, 820.0), 40.0, Color.PINK, 1.0),
+                        new ColoredCircle(new Point2D(1400.0, 700.0), 45.0, Color.DARKBLUE, 1.0),
+                        new ColoredCircle(new Point2D(500.0, 1000.0), 20.0, Color.SEAGREEN, 1.0)
                 )
         );
 
-        final List<DefaultCircle> defaultObjects = engine.getDefaultObjects();
+        final List<ColoredCircle> defaultObjects = engine.getDefaultObjects();
         engine.algorithm();
-        final Map<LightSourceCircle, List<Line>> lightSources = engine.getLightSources();
+        final Map<CircleLightSource, List<Line2D>> lightSources = engine.getLightSources();
 
         drawScene(gc, lightSources, defaultObjects);
         updateHUD(hudText, lightSources.keySet(), (short) defaultObjects.size());
@@ -85,10 +90,10 @@ public class RayTracingApplication extends Application {
         scene.setOnMouseClicked(event -> {
             switch (event.getButton()) {
                 case MouseButton.PRIMARY -> {
-                    final Point clicked = new Point(event.getX(), HEIGHT - event.getY());
+                    final Point2D clicked = new Point2D(event.getX(), HEIGHT - event.getY());
                     boolean isSelected = false;
 
-                    for (final LightSourceCircle lightSource : lightSources.keySet()) {
+                    for (final CircleLightSource lightSource : lightSources.keySet()) {
                         if (lightSource.contains(clicked)) {
                             selectedObject = lightSource;
                             isSelected = true;
@@ -97,7 +102,7 @@ public class RayTracingApplication extends Application {
                     }
 
                     if (!isSelected) {
-                        for (final DefaultCircle object : defaultObjects) {
+                        for (final ColoredCircle object : defaultObjects) {
                             if (object.contains(clicked)) {
                                 selectedObject = object;
                                 isSelected = true;
@@ -141,10 +146,10 @@ public class RayTracingApplication extends Application {
                     if (selectedObject != null) {
                         boolean reDrawScene = true;
                         switch (event.getCode()) {
-                            case KeyCode.W -> selectedObject.move(new Point(0.0, moveSpeed)); // move up
-                            case KeyCode.A -> selectedObject.move(new Point(-moveSpeed, 0.0)); // move left
-                            case KeyCode.S -> selectedObject.move(new Point(0.0, -moveSpeed)); // move down
-                            case KeyCode.D -> selectedObject.move(new Point(moveSpeed, 0.0)); // move right
+                            case KeyCode.W -> selectedObject.move(new Point2D(0.0, moveSpeed)); // move up
+                            case KeyCode.A -> selectedObject.move(new Point2D(-moveSpeed, 0.0)); // move left
+                            case KeyCode.S -> selectedObject.move(new Point2D(0.0, -moveSpeed)); // move down
+                            case KeyCode.D -> selectedObject.move(new Point2D(moveSpeed, 0.0)); // move right
 
                             case KeyCode.R -> selectedObject.subtractRadius(1.0); // decrease object radius
                             case KeyCode.T -> selectedObject.addRadius(1.0); // increase object radius
@@ -152,50 +157,50 @@ public class RayTracingApplication extends Application {
                             case KeyCode.P -> selectedObject.addOpacity(0.02); // increase object opacity
 
                             case KeyCode.Z -> { // decrease light distance
-                                if (selectedObject instanceof LightSourceCircle lightSource) {
-                                    lightSource.subtractLightDistance(lightDistanceDelta);
+                                if (selectedObject instanceof CircleLightSource lightSource) {
+                                    lightSource.getLightSource().subtractLightDistance(lightDistanceDelta);
                                 }
                             }
                             case KeyCode.X -> { // increase light distance
-                                if (selectedObject instanceof LightSourceCircle lightSource) {
-                                    lightSource.addLightDistance(lightDistanceDelta);
+                                if (selectedObject instanceof CircleLightSource lightSource) {
+                                    lightSource.getLightSource().addLightDistance(lightDistanceDelta);
                                 }
                             }
                             case KeyCode.Q -> { // decrease light brightness
-                                if (selectedObject instanceof LightSourceCircle lightSource) {
-                                    lightSource.subtractLightOpacity(0.002);
+                                if (selectedObject instanceof CircleLightSource lightSource) {
+                                    lightSource.getLightSource().subtractLightOpacity(0.002);
                                 }
                             }
                             case KeyCode.E -> { // increase light brightness
-                                if (selectedObject instanceof LightSourceCircle lightSource) {
-                                    lightSource.addLightOpacity(0.002);
+                                if (selectedObject instanceof CircleLightSource lightSource) {
+                                    lightSource.getLightSource().addLightOpacity(0.002);
                                 }
                             }
 
                             case KeyCode.H -> { // rotate light source clockwise
-                                if (selectedObject instanceof LightSourceCircle lightSource) {
-                                    lightSource.subtractStartAngleDegree(1.0);
+                                if (selectedObject instanceof CircleLightSource lightSource) {
+                                    lightSource.getLightSource().addStartAngleDegree(1.0);
                                 }
                             }
                             case KeyCode.J -> { // rotate light source counterclockwise
-                                if (selectedObject instanceof LightSourceCircle lightSource) {
-                                    lightSource.addStartAngleDegree(1.0);
+                                if (selectedObject instanceof CircleLightSource lightSource) {
+                                    lightSource.getLightSource().subtractStartAngleDegree(1.0);
                                 }
                             }
                             case KeyCode.K -> { // decrease illumination angle
-                                if (selectedObject instanceof LightSourceCircle lightSource) {
-                                    lightSource.subtractAngleDegrees(1.0);
+                                if (selectedObject instanceof CircleLightSource lightSource) {
+                                    lightSource.getLightSource().subtractAngleDegrees(1.0);
                                 }
                             }
                             case KeyCode.L -> { // increase illumination angle
-                                if (selectedObject instanceof LightSourceCircle lightSource) {
-                                    lightSource.addAngleDegrees(1.0);
+                                if (selectedObject instanceof CircleLightSource lightSource) {
+                                    lightSource.getLightSource().addAngleDegrees(1.0);
                                 }
                             }
 
                             case KeyCode.F -> { // toggle light source
-                                if (selectedObject instanceof LightSourceCircle lightSource) {
-                                    lightSource.toggleActive();
+                                if (selectedObject instanceof CircleLightSource lightSource) {
+                                    lightSource.getLightSource().toggleActive();
                                 }
                             }
 
@@ -221,12 +226,12 @@ public class RayTracingApplication extends Application {
     }
 
     // draws all objects, light sources & light rays
-    private static void drawScene(final GraphicsContext gc, final Map<LightSourceCircle, List<Line>> lightSources, final List<DefaultCircle> defaultObjects) {
+    private static void drawScene(final GraphicsContext gc, final Map<CircleLightSource, List<Line2D>> lightSources, final List<ColoredCircle> defaultObjects) {
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, WIDTH, HEIGHT);
 
         // lambda for drawing an object (circle)
-        final Consumer<AbstractCircle> drawObject = (final AbstractCircle object) -> {
+        final Consumer<ColoredCircle> drawObject = (final ColoredCircle object) -> {
             final Color objectColor = object.getColor(),
                     objectColorWithOpacity = Color.color(objectColor.getRed(), objectColor.getGreen(), objectColor.getBlue(), object.getOpacity());
             gc.setStroke(objectColorWithOpacity);
@@ -238,36 +243,36 @@ public class RayTracingApplication extends Application {
         };
 
         // draw default objects first
-        for (final DefaultCircle defaultObject : defaultObjects) {
+        for (final ColoredCircle defaultObject : defaultObjects) {
             drawObject.accept(defaultObject);
         }
 
         // draw light rays second
         for (final var lightSourceWihLightRays : lightSources.entrySet()) {
-            final LightSourceCircle lightSource = lightSourceWihLightRays.getKey();
+            final CircleLightSource lightSource = lightSourceWihLightRays.getKey();
 
-            if (lightSource.isActive()) {
-                final Color lightColor = lightSource.getLightColor(),
-                        lightColorWithOpacity = Color.color(lightColor.getRed(), lightColor.getGreen(), lightColor.getBlue(), lightSource.getLightOpacity());
+            if (lightSource.getLightSource().isActive()) {
+                final Color lightColor = lightSource.getLightSource().getLightColor(),
+                        lightColorWithOpacity = Color.color(lightColor.getRed(), lightColor.getGreen(), lightColor.getBlue(), lightSource.getLightSource().getLightOpacity());
                 gc.setStroke(lightColorWithOpacity);
 
-                for (final Line lightRay : lightSourceWihLightRays.getValue()) {
+                for (final Line2D lightRay : lightSourceWihLightRays.getValue()) {
                     gc.strokeLine(lightRay.getStart().getX(), HEIGHT - lightRay.getStart().getY(), lightRay.getEnd().getX(), HEIGHT - lightRay.getEnd().getY());
                 }
             }
         }
 
         // draw light sources last
-        for (final LightSourceCircle lightSource : lightSources.keySet()) {
+        for (final CircleLightSource lightSource : lightSources.keySet()) {
             drawObject.accept(lightSource);
         }
     }
 
     // displays info about scene, objects, etc.
-    private static void updateHUD(final Text hudText, final Set<LightSourceCircle> lightSources, final short defaultObjectsOnScene) {
+    private static void updateHUD(final Text hudText, final Set<CircleLightSource> lightSources, final short defaultObjectsOnScene) {
         final StringJoiner sj = new StringJoiner("\n");
         sj.add("Objects: " + (defaultObjectsOnScene + lightSources.size() + " (" + defaultObjectsOnScene + " default, "
-                + lightSources.stream().filter(LightSourceCircle::isActive).count() + "/" + lightSources.size() + " active light sources)"));
+                + lightSources.stream().filter(o -> o.getLightSource().isActive()).count() + "/" + lightSources.size() + " active light sources)"));
         sj.add("");
         sj.add("[↓/↑] Move speed: " + moveSpeed + " px/step");
         sj.add("[←/→] Light distance delta: " + lightDistanceDelta + " px/step");
@@ -280,14 +285,14 @@ public class RayTracingApplication extends Application {
             sj.add("    Color: " + selectedObject.getColor());
             sj.add("    [O/P] Opacity: " + (byte) (selectedObject.getOpacity() * 100) + "%");
 
-            if (selectedObject instanceof LightSourceCircle lightSource) {
+            if (selectedObject instanceof CircleLightSource lightSource) {
                 sj.add("");
-                sj.add("    [F] Status: " + (lightSource.isActive() ? "ACTIVE" : "INACTIVE"));
-                sj.add("    Light color: " + lightSource.getLightColor());
-                sj.add(String.format("    [Q/E] Light opacity: %.1f%%", lightSource.getLightOpacity() * 100));
-                sj.add("    [Z/X] Light distance: " + (short) lightSource.getLightDistance() + "px");
-                sj.add("    [H/J] Rotation angle: " + (short) lightSource.getStartAngleDegree() + "°");
-                sj.add("    [K/L] Illumination angle: " + (short) lightSource.getAngleDegrees() + "°");
+                sj.add("    [F] Status: " + (lightSource.getLightSource().isActive() ? "ACTIVE" : "INACTIVE"));
+                sj.add("    Light color: " + lightSource.getLightSource().getLightColor());
+                sj.add(String.format("    [Q/E] Light opacity: %.1f%%", lightSource.getLightSource().getLightOpacity() * 100));
+                sj.add("    [Z/X] Light distance: " + (short) lightSource.getLightSource().getLightDistance() + "px");
+                sj.add("    [H/J] Rotation angle: " + (short) lightSource.getLightSource().getStartAngleDegree() + "°");
+                sj.add("    [K/L] Illumination angle: " + (short) lightSource.getLightSource().getAngleDegrees() + "°");
             }
         }
 

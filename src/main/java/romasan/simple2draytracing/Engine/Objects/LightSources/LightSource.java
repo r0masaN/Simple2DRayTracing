@@ -1,20 +1,18 @@
-package romasan.simple2draytracing.Engine.Objects;
+package romasan.simple2draytracing.Engine.Objects.LightSources;
 
 import javafx.scene.paint.Color;
 
 import java.util.Objects;
+import java.util.Random;
 
-// light source Circle class (for light sources)
-@Deprecated
-public final class LightSourceCircle extends AbstractCircle {
+public class LightSource {
+    private final long id;
     private Color lightColor;
     private double lightOpacity, lightDistance, startAngleDegree, angleDegrees;
     private boolean isActive;
 
-    public LightSourceCircle(final Point center, final double radius, final Color color, final double opacity,
-                             final Color lightColor, final double lightOpacity, final double lightDistance,
-                             final double startAngleDegree, final double angleDegrees) {
-        super(center, radius, color, opacity);
+    public LightSource(final Color lightColor, final double lightOpacity, final double lightDistance,
+                       final double startAngleDegree, final double angleDegrees) {
         this.lightColor = lightColor;
         this.lightOpacity = lightOpacity;
         this.lightDistance = lightDistance;
@@ -22,33 +20,27 @@ public final class LightSourceCircle extends AbstractCircle {
         this.angleDegrees = angleDegrees;
         this.isActive = true;
 
-        this.id = this.generateId();
-    }
-
-    @Override
-    protected long generateId() {
-        return Objects.hash(super.generateId(), this.lightColor, this.lightOpacity, this.lightDistance,
-                this.startAngleDegree, this.angleDegrees, this.isActive);
+        this.id = new Random().nextLong();
     }
 
     public void addLightOpacity(final double deltaLightOpacity) {
-        if (deltaLightOpacity > 0.0 && deltaLightOpacity <= 1.0 && this.lightOpacity + deltaLightOpacity <= 1.0 + 10e-6)
-            this.lightOpacity = Math.round(Math.min(this.lightOpacity + deltaLightOpacity, 1.0) * 10e3) / 10e3;
+        if (deltaLightOpacity > 0.0 && deltaLightOpacity <= 1.0 && this.lightOpacity + deltaLightOpacity <= 1.0 + 10e-9)
+            this.lightOpacity = Math.min(this.lightOpacity + deltaLightOpacity, 1.0);
     }
 
     public void subtractLightOpacity(final double deltaLightOpacity) {
-        if (deltaLightOpacity > 0.0 && deltaLightOpacity <= 1.0 && this.lightOpacity - deltaLightOpacity > -10e-6)
-            this.lightOpacity = Math.round(Math.max(this.lightOpacity - deltaLightOpacity, 0.0) * 10e3) / 10e3;
+        if (deltaLightOpacity > 0.0 && deltaLightOpacity <= 1.0 && this.lightOpacity - deltaLightOpacity > -10e-9)
+            this.lightOpacity = Math.max(this.lightOpacity - deltaLightOpacity, 0.0);
     }
 
     public void addLightDistance(final double deltaLightDistance) {
-        if (deltaLightDistance > 0.0 && this.lightDistance + deltaLightDistance <= 2500.0 + 10e-6)
-            this.lightDistance = Math.round(Math.min(this.lightDistance + deltaLightDistance, 2500.0) * 10e3) / 10e3;
+        if (deltaLightDistance > 0.0 && this.lightDistance + deltaLightDistance <= 2500.0 + 10e-9)
+            this.lightDistance = Math.min(this.lightDistance + deltaLightDistance, 2500.0);
     }
 
     public void subtractLightDistance(final double deltaLightDistance) {
-        if (deltaLightDistance > 0.0 && this.lightDistance - deltaLightDistance >= -10e-6)
-            this.lightDistance = Math.round(Math.max(this.lightDistance - deltaLightDistance, 0.0) * 10e3) / 10e3;
+        if (deltaLightDistance > 0.0 && this.lightDistance - deltaLightDistance >= -10e-9)
+            this.lightDistance = Math.max(this.lightDistance - deltaLightDistance, 0.0);
     }
 
     public void addStartAngleDegree(final double deltaStartAngleDegree) {
@@ -64,13 +56,17 @@ public final class LightSourceCircle extends AbstractCircle {
     }
 
     public void addAngleDegrees(final double deltaAngleDegrees) {
-        if (deltaAngleDegrees > 0.0) this.angleDegrees = (this.angleDegrees + deltaAngleDegrees) % 360.0;
+        if (deltaAngleDegrees > 0.0) {
+            this.angleDegrees = (this.angleDegrees + deltaAngleDegrees) % 360.0;
+            if (Double.compare(this.angleDegrees, 0.0) == 0) this.angleDegrees = 360.0;
+        }
     }
 
     public void subtractAngleDegrees(final double deltaAngleDegree) {
         if (deltaAngleDegree > 0.0) {
             this.angleDegrees = (this.angleDegrees - deltaAngleDegree) % 360.0;
-            if (this.angleDegrees < 0.0) this.angleDegrees += 360.0;
+            if (Double.compare(this.angleDegrees, 0.0) == 0) this.angleDegrees = 360.0;
+            else if (this.angleDegrees < 0.0) this.angleDegrees += 360.0;
         }
     }
 
@@ -127,13 +123,19 @@ public final class LightSourceCircle extends AbstractCircle {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hashCode(this.id);
+    }
+
+    @Override
     public boolean equals(final Object obj) {
         if (obj == this) return true;
         if (obj == null || obj.getClass() != this.getClass() || !super.equals(obj)) return false;
 
-        final LightSourceCircle other = (LightSourceCircle) obj;
+        final LightSource other = (LightSource) obj;
         return this.lightColor.equals(other.lightColor) && Double.compare(this.lightOpacity, other.lightOpacity) == 0 &&
-                Double.compare(this.lightDistance, other.lightDistance) == 0 && Double.compare(this.startAngleDegree, other.startAngleDegree) == 0
-                && Double.compare(this.angleDegrees, other.angleDegrees) == 0 && this.isActive == other.isActive;
+                Double.compare(this.lightDistance, other.lightDistance) == 0 &&
+                Double.compare(this.startAngleDegree, other.startAngleDegree) == 0 &&
+                Double.compare(this.angleDegrees, other.angleDegrees) == 0 && this.isActive == other.isActive;
     }
 }

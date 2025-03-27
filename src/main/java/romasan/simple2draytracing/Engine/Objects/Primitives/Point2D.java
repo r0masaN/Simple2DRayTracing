@@ -1,38 +1,45 @@
-package romasan.simple2draytracing.Engine.Objects;
+package romasan.simple2draytracing.Engine.Objects.Primitives;
 
 import java.util.Objects;
 
-// simple Point class
-@Deprecated
-public final class Point {
-    // const id for correct hashCode() working
-    private final long id;
+public class Point2D {
     private double x, y;
 
-    public Point(final double x, final double y) {
+    public Point2D(final double x, final double y) {
         this.x = x;
         this.y = y;
-
-        this.id = this.generateId();
     }
 
-    public Point(final Point other) {
+    public Point2D(final Point2D other) {
         this.x = other.x;
         this.y = other.y;
-
-        this.id = this.generateId();
     }
 
-    public void add(final Point other) {
+    public Point2D add(final double v) {
+        this.x += v;
+        this.y += v;
+
+        return this;
+    }
+
+    public void add(final Point2D other) {
         this.x += other.x;
         this.y += other.y;
     }
 
-    private long generateId() {
-        return Objects.hash(this.x, this.y);
+    public Point2D subtract(final double v) {
+        this.x -= v;
+        this.y -= v;
+
+        return this;
     }
 
-    public double distance(final Point other) {
+    public void subtract(final Point2D other) {
+        this.x -= other.x;
+        this.y -= other.y;
+    }
+
+    public double distance(final Point2D other) {
         return Math.sqrt(Math.pow(this.x - other.x, 2) + Math.pow(this.y - other.y, 2));
     }
 
@@ -54,7 +61,7 @@ public final class Point {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.id);
+        return Objects.hash(this.x, this.y);
     }
 
     @Override
@@ -62,7 +69,7 @@ public final class Point {
         if (obj == this) return true;
         if (obj == null || obj.getClass() != this.getClass()) return false;
 
-        final Point other = (Point) obj;
+        final Point2D other = (Point2D) obj;
         return Double.compare(this.x, other.x) == 0 && Double.compare(this.y, other.y) == 0;
     }
 }

@@ -5,6 +5,7 @@ import javafx.scene.paint.Color;
 import java.util.Objects;
 
 // parent class for all Circle classes
+@Deprecated
 public sealed abstract class AbstractCircle permits DefaultCircle, LightSourceCircle {
     // const id for correct hashCode() working
     protected long id;
